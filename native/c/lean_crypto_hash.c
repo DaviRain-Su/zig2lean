@@ -8,15 +8,15 @@ static lean_obj_res mk_crypto_error(const char* message) {
   return lean_io_result_mk_error(err);
 }
 
-static lean_obj_res mk_digest_result(void) {
-  return lean_alloc_sarray(1, ZIGLEAN_CRYPTO_SHA256_LEN, ZIGLEAN_CRYPTO_SHA256_LEN);
+static lean_obj_res mk_digest_result(size_t len) {
+  return lean_alloc_sarray(1, len, len);
 }
 
 lean_obj_res lean_ziglean_crypto_sha256(b_lean_obj_arg input, lean_obj_arg world) {
   (void)world;
   size_t input_len = lean_sarray_size(input);
   const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
-  lean_object* out = mk_digest_result();
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SHA256_LEN);
   uint32_t status = ziglean_crypto_sha256(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
   if (status != 0) {
     lean_dec(out);
@@ -29,7 +29,7 @@ lean_obj_res lean_ziglean_crypto_blake3(b_lean_obj_arg input, lean_obj_arg world
   (void)world;
   size_t input_len = lean_sarray_size(input);
   const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
-  lean_object* out = mk_digest_result();
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_BLAKE3_LEN);
   uint32_t status = ziglean_crypto_blake3(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
   if (status != 0) {
     lean_dec(out);
@@ -48,7 +48,7 @@ lean_obj_res lean_ziglean_crypto_hmac_sha256(
   size_t message_len = lean_sarray_size(message);
   const uint8_t* key_bytes = lean_sarray_cptr((lean_object*)key);
   const uint8_t* message_bytes = lean_sarray_cptr((lean_object*)message);
-  lean_object* out = mk_digest_result();
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_HMAC_SHA256_LEN);
   uint32_t status = ziglean_crypto_hmac_sha256(
     key_bytes,
     (uint64_t)key_len,
@@ -59,6 +59,45 @@ lean_obj_res lean_ziglean_crypto_hmac_sha256(
   if (status != 0) {
     lean_dec(out);
     return mk_crypto_error("zig hmac sha256 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_sha512(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SHA512_LEN);
+  uint32_t status = ziglean_crypto_sha512(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig sha512 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_sha3_256(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SHA3_256_LEN);
+  uint32_t status = ziglean_crypto_sha3_256(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig sha3_256 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_keccak256(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_KECCAK256_LEN);
+  uint32_t status = ziglean_crypto_keccak256(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig keccak256 failed");
   }
   return lean_io_result_mk_ok(out);
 }

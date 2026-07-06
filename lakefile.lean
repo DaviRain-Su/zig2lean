@@ -21,32 +21,78 @@ lean_exe codec_test where
   srcDir := "test"
   supportInterpreter := true
 
+lean_exe compress_test where
+  root := `CompressTest
+  srcDir := "test"
+  supportInterpreter := true
+
+lean_exe crypto_extended_test where
+  root := `CryptoExtendedTest
+  srcDir := "test"
+  supportInterpreter := true
+
 extern_lib liblean_ziglean pkg := do
   let libName := nameToStaticLib "lean_ziglean"
   let outDir := pkg.buildDir / "native"
   let libFile := outDir / "lib" / libName
   let rootSrcJob ← inputFile (pkg.dir / "native" / "src" / "root.zig") true
-  let zigSrcJob ← inputFile (pkg.dir / "native" / "src" / "json.zig") true
+  let jsonSrcJob ← inputFile (pkg.dir / "native" / "src" / "json.zig") true
   let cryptoSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash.zig") true
+  let kdfSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_kdf.zig") true
+  let signSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_sign.zig") true
+  let aeadSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_aead.zig") true
+  let checksumSrcJob ← inputFile (pkg.dir / "native" / "src" / "hash_checksum.zig") true
+  let leb128SrcJob ← inputFile (pkg.dir / "native" / "src" / "leb128.zig") true
   let codecSrcJob ← inputFile (pkg.dir / "native" / "src" / "codec.zig") true
+  let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
   let cryptoCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash.c") true
+  let kdfCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_kdf.c") true
+  let signCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_sign.c") true
+  let aeadCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_aead.c") true
+  let checksumCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_hash_checksum.c") true
+  let leb128CSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_leb128.c") true
   let codecCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_codec.c") true
+  let compressCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_compress.c") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
   let cryptoHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash.h") true
+  let kdfHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_kdf.h") true
+  let signHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_sign.h") true
+  let aeadHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_aead.h") true
+  let checksumHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_hash_checksum.h") true
+  let leb128HdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_leb128.h") true
   let codecHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_codec.h") true
+  let compressHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_compress.h") true
   let buildJob ← inputFile (pkg.dir / "native" / "build.zig") true
   let depJob :=
     buildJob.mix <|
       rootSrcJob.mix <|
-        zigSrcJob.mix <|
+        jsonSrcJob.mix <|
           cryptoSrcJob.mix <|
-            codecSrcJob.mix <|
-              cSrcJob.mix <|
-                cryptoCSrcJob.mix <|
-                  codecCSrcJob.mix <|
-                    hdrJob.mix <|
-                      cryptoHdrJob.mix codecHdrJob
+            kdfSrcJob.mix <|
+              signSrcJob.mix <|
+                aeadSrcJob.mix <|
+                  checksumSrcJob.mix <|
+                    leb128SrcJob.mix <|
+                      codecSrcJob.mix <|
+                        compressSrcJob.mix <|
+                          cSrcJob.mix <|
+                            cryptoCSrcJob.mix <|
+                              kdfCSrcJob.mix <|
+                                signCSrcJob.mix <|
+                                  aeadCSrcJob.mix <|
+                                    checksumCSrcJob.mix <|
+                                      leb128CSrcJob.mix <|
+                                        codecCSrcJob.mix <|
+                                          compressCSrcJob.mix <|
+                                            hdrJob.mix <|
+                                              cryptoHdrJob.mix <|
+                                                kdfHdrJob.mix <|
+                                                  signHdrJob.mix <|
+                                                    aeadHdrJob.mix <|
+                                                      checksumHdrJob.mix <|
+                                                        leb128HdrJob.mix <|
+                                                          codecHdrJob.mix compressHdrJob
   buildFileAfterDep libFile depJob fun _ => do
     IO.FS.createDirAll libFile.parent.get!
     let leanPrefixOut ← IO.Process.output {

@@ -11,4 +11,13 @@ def blake3 (input : ByteArray) : IO ByteArray :=
 def hmacSha256 (key message : ByteArray) : IO ByteArray :=
   FFI.hmacSha256Raw key message
 
+def sha512 (input : ByteArray) : IO ByteArray :=
+  FFI.sha512Raw input
+
+def sha3_256 (input : ByteArray) : IO ByteArray :=
+  FFI.sha3_256Raw input
+
+def keccak256 (input : ByteArray) : IO ByteArray :=
+  FFI.keccak256Raw input
+
 end ZigLean.Crypto.Hash

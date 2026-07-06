@@ -27,3 +27,24 @@ export fn ziglean_crypto_hmac_sha256(
     std.crypto.auth.hmac.sha2.HmacSha256.create(out, message_bytes, key_bytes);
     return 0;
 }
+
+export fn ziglean_crypto_sha512(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[64]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha2.Sha512.hash(bytes, out, .{});
+    return 0;
+}
+
+export fn ziglean_crypto_sha3_256(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[32]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha3.Sha3_256.hash(bytes, out, .{});
+    return 0;
+}
+
+export fn ziglean_crypto_keccak256(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[32]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha3.Keccak256.hash(bytes, out, .{});
+    return 0;
+}
