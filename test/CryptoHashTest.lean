@@ -75,7 +75,7 @@ def main : IO Unit := do
   let blakeEmpty ← blake3 ByteArray.empty
   assertEq "blake3 empty length" blakeEmpty.size 32
   expectHex "blake3 empty" blakeEmpty
-    "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262e00"
+    "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262"
 
   let blakeAbc ← blake3 (bytes "abc")
   assertEq "blake3 abc length" blakeAbc.size 32
