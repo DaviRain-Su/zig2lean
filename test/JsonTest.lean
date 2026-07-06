@@ -37,6 +37,10 @@ def sampleSuccess : ByteArray :=
 
 def main : IO Unit := do
   assertEq "stub validate" (← Json.validate (bytes "{}")) true
+  assertEq "valid object" (← Json.validate (bytes "{\"a\":1}")) true
+  assertEq "valid array" (← Json.validate (bytes "[true,false,null]")) true
+  assertEq "invalid trailing comma" (← Json.validate (bytes "{\"a\":1,}")) false
+  assertEq "invalid empty input" (← Json.validate (bytes "")) false
   match decodeRawResult sampleSuccess with
   | Except.ok toks =>
       assertEq "token count" toks.size 1

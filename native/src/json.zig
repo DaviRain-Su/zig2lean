@@ -4,9 +4,17 @@ const c = @cImport({
 });
 
 export fn ziglean_json_validate(input: [*]const u8, input_len: u64) u32 {
-    _ = input;
-    _ = input_len;
-    return 0;
+    const bytes = input[0..@intCast(input_len)];
+    var scanner = std.json.Scanner.initCompleteInput(std.heap.c_allocator, bytes);
+    defer scanner.deinit();
+
+    while (true) {
+        const token = scanner.next() catch return 1;
+        switch (token) {
+            .end_of_document => return 0,
+            else => {},
+        }
+    }
 }
 
 export fn ziglean_json_parse_tokens(
