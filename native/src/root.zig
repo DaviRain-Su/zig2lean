@@ -1,5 +1,6 @@
 comptime {
     _ = @import("json.zig");
+    _ = @import("json_stream.zig");
     _ = @import("crypto_hash.zig");
     _ = @import("crypto_hash_stream.zig");
     _ = @import("crypto_kdf.zig");

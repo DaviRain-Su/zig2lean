@@ -14,7 +14,8 @@ script test do
     ("CodecTest", "codec_test"),
     ("CompressTest", "compress_test"),
     ("CryptoExtendedTest", "crypto_extended_test"),
-    ("JsonAstTest", "json_ast_test")
+    ("JsonAstTest", "json_ast_test"),
+    ("JsonStreamTest", "json_stream_test")
   ]
   for (name, exe) in suites do
     IO.println s!"== {name} =="
@@ -59,12 +60,18 @@ lean_exe json_ast_test where
   srcDir := "test"
   supportInterpreter := true
 
+lean_exe json_stream_test where
+  root := `JsonStreamTest
+  srcDir := "test"
+  supportInterpreter := true
+
 extern_lib liblean_ziglean pkg := do
   let libName := nameToStaticLib "lean_ziglean"
   let outDir := pkg.buildDir / "native"
   let libFile := outDir / "lib" / libName
   let rootSrcJob ← inputFile (pkg.dir / "native" / "src" / "root.zig") true
   let jsonSrcJob ← inputFile (pkg.dir / "native" / "src" / "json.zig") true
+  let jsonStreamSrcJob ← inputFile (pkg.dir / "native" / "src" / "json_stream.zig") true
   let cryptoSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash.zig") true
   let cryptoStreamSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash_stream.zig") true
   let kdfSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_kdf.zig") true
@@ -75,6 +82,7 @@ extern_lib liblean_ziglean pkg := do
   let codecSrcJob ← inputFile (pkg.dir / "native" / "src" / "codec.zig") true
   let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
+  let jsonStreamCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json_stream.c") true
   let cryptoCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash.c") true
   let cryptoStreamCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash_stream.c") true
   let kdfCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_kdf.c") true
@@ -85,6 +93,7 @@ extern_lib liblean_ziglean pkg := do
   let codecCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_codec.c") true
   let compressCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_compress.c") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
+  let jsonStreamHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json_stream.h") true
   let cryptoHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash.h") true
   let cryptoStreamHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash_stream.h") true
   let kdfHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_kdf.h") true
@@ -99,7 +108,8 @@ extern_lib liblean_ziglean pkg := do
     buildJob.mix <|
       rootSrcJob.mix <|
         jsonSrcJob.mix <|
-          cryptoSrcJob.mix <|
+          jsonStreamSrcJob.mix <|
+            cryptoSrcJob.mix <|
             cryptoStreamSrcJob.mix <|
               kdfSrcJob.mix <|
               signSrcJob.mix <|
@@ -109,7 +119,8 @@ extern_lib liblean_ziglean pkg := do
                       codecSrcJob.mix <|
                         compressSrcJob.mix <|
                           cSrcJob.mix <|
-                            cryptoCSrcJob.mix <|
+                            jsonStreamCSrcJob.mix <|
+                              cryptoCSrcJob.mix <|
                               cryptoStreamCSrcJob.mix <|
                                 kdfCSrcJob.mix <|
                                 signCSrcJob.mix <|
@@ -119,7 +130,8 @@ extern_lib liblean_ziglean pkg := do
                                         codecCSrcJob.mix <|
                                           compressCSrcJob.mix <|
                                             hdrJob.mix <|
-                                              cryptoHdrJob.mix <|
+                                              jsonStreamHdrJob.mix <|
+                                                cryptoHdrJob.mix <|
                                                 cryptoStreamHdrJob.mix <|
                                                   kdfHdrJob.mix <|
                                                   signHdrJob.mix <|
