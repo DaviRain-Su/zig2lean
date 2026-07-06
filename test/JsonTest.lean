@@ -49,3 +49,15 @@ def main : IO Unit := do
       assertEq "token length" toks[0]!.length 1
   | Except.error err =>
       throw <| IO.userError s!"expected success, got error code {err.code}"
+  match ← Json.parseTokens (bytes "{\"a\":1,\"b\":[true,null]}") with
+  | Except.error err =>
+      throw <| IO.userError s!"parse success expected, got {err.code}"
+  | Except.ok toks =>
+      assertEq "parse token count" toks.size 9
+      assertEq "first token" toks[0]!.kind JsonTokenKind.objectStart
+      assertEq "key token" toks[1]!.kind JsonTokenKind.string
+      assertEq "number token" toks[2]!.kind JsonTokenKind.number
+      assertEq "array token" toks[4]!.kind JsonTokenKind.arrayStart
+      assertEq "bool token" toks[5]!.kind JsonTokenKind.bool
+      assertEq "null token" toks[6]!.kind JsonTokenKind.null
+      assertEq "last token" toks[8]!.kind JsonTokenKind.objectEnd
