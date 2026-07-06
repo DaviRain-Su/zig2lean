@@ -3,8 +3,31 @@ open Lake DSL
 open System
 
 package «zig2lean» where
+  testDriver := "test"
 
 lean_lib ZigLean
+
+script test do
+  let suites := #[
+    ("JsonTest", "json_test"),
+    ("CryptoHashTest", "crypto_hash_test"),
+    ("CodecTest", "codec_test"),
+    ("CompressTest", "compress_test"),
+    ("CryptoExtendedTest", "crypto_extended_test"),
+    ("JsonAstTest", "json_ast_test")
+  ]
+  for (name, exe) in suites do
+    IO.println s!"== {name} =="
+    let out ← IO.Process.output { cmd := "lake", args := #["exe", exe] }
+    unless out.stdout.isEmpty do
+      IO.print out.stdout
+    if out.exitCode != 0 then
+      unless out.stderr.isEmpty do
+        IO.eprintln out.stderr
+      IO.eprintln s!"{name} failed with exit code {out.exitCode}"
+      return out.exitCode
+  IO.println "All tests passed."
+  return 0
 
 lean_exe json_test where
   root := `JsonTest
@@ -28,6 +51,11 @@ lean_exe compress_test where
 
 lean_exe crypto_extended_test where
   root := `CryptoExtendedTest
+  srcDir := "test"
+  supportInterpreter := true
+
+lean_exe json_ast_test where
+  root := `JsonAstTest
   srcDir := "test"
   supportInterpreter := true
 

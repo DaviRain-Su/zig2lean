@@ -1,5 +1,7 @@
 import ZigLean
 
+namespace CryptoHashTest
+
 open ZigLean.Crypto.Hash
 
 def bytes (s : String) : ByteArray :=
@@ -90,3 +92,8 @@ def main : IO Unit := do
   for _ in [0:50] do
     expectHex "repeat sha256 abc" (← sha256 (bytes "abc"))
       "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+end CryptoHashTest
+
+def main : IO Unit :=
+  CryptoHashTest.main

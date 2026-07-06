@@ -1,6 +1,8 @@
 import ZigLean
 import ZigLean.Json.Decode
 
+namespace JsonTest
+
 open ZigLean
 open ZigLean.Json
 
@@ -95,3 +97,8 @@ def main : IO Unit := do
         throw <| IO.userError s!"repeat parse failed with {err.code}"
     | Except.ok toks =>
         assertEq "repeat token count" toks.size 5
+
+end JsonTest
+
+def main : IO Unit :=
+  JsonTest.main

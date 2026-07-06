@@ -1,5 +1,7 @@
 import ZigLean
 
+namespace CryptoExtendedTest
+
 open ZigLean.Crypto.Hash
 open ZigLean.Crypto.Kdf
 open ZigLean.Crypto.Sign
@@ -77,6 +79,14 @@ def main : IO Unit := do
   expectHex "pbkdf2 sample" pbkdfOut
     "120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b"
 
+  let scryptOut ← scrypt (bytes "password") (bytes "saltsalt") 4 1 1 32
+  assertEq "scrypt length" scryptOut.size 32
+  assertEq "scrypt repeat" scryptOut (← scrypt (bytes "password") (bytes "saltsalt") 4 1 1 32)
+
+  let argonOut ← argon2id (bytes "password") (repeatByte 16 0x02) 1 8 1 32
+  assertEq "argon2id length" argonOut.size 32
+  assertEq "argon2id repeat" argonOut (← argon2id (bytes "password") (repeatByte 16 0x02) 1 8 1 32)
+
   let seed := repeatByte 32 0x01
   let msg := bytes "test message"
   let sig ← ed25519Sign seed msg
@@ -112,3 +122,8 @@ def main : IO Unit := do
   match ← chacha20Poly1305Decrypt key nonce ByteArray.empty chEnc with
   | Except.ok out => if out != plain then throw <| IO.userError "chacha roundtrip mismatch"
   | Except.error err => throw <| IO.userError s!"chacha decrypt failed: {err.code}"
+
+end CryptoExtendedTest
+
+def main : IO Unit :=
+  CryptoExtendedTest.main

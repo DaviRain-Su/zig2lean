@@ -28,6 +28,30 @@ uint32_t ziglean_crypto_pbkdf2_sha256(
   uint8_t** out_bytes
 );
 
+uint32_t ziglean_crypto_scrypt(
+  const uint8_t* password,
+  uint64_t password_len,
+  const uint8_t* salt,
+  uint64_t salt_len,
+  uint32_t ln,
+  uint32_t r,
+  uint32_t p,
+  uint64_t out_len,
+  uint8_t** out_bytes
+);
+
+uint32_t ziglean_crypto_argon2id(
+  const uint8_t* password,
+  uint64_t password_len,
+  const uint8_t* salt,
+  uint64_t salt_len,
+  uint32_t t,
+  uint32_t m_kib,
+  uint32_t p,
+  uint64_t out_len,
+  uint8_t** out_bytes
+);
+
 void ziglean_crypto_kdf_free(uint8_t* ptr, uint64_t len);
 
 #ifdef __cplusplus

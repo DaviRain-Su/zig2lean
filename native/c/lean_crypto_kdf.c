@@ -68,3 +68,61 @@ lean_obj_res lean_ziglean_crypto_pbkdf2_sha256(
   }
   return copy_kdf_output(out, out_len);
 }
+
+lean_obj_res lean_ziglean_crypto_scrypt(
+  b_lean_obj_arg password,
+  b_lean_obj_arg salt,
+  uint32_t ln,
+  uint32_t r,
+  uint32_t p,
+  uint64_t out_len,
+  lean_obj_arg world
+) {
+  (void)world;
+  uint8_t* out = 0;
+  uint32_t status = ziglean_crypto_scrypt(
+    lean_sarray_cptr((lean_object*)password),
+    (uint64_t)lean_sarray_size(password),
+    lean_sarray_cptr((lean_object*)salt),
+    (uint64_t)lean_sarray_size(salt),
+    ln,
+    r,
+    p,
+    out_len,
+    &out
+  );
+  if (status != 0) {
+    ziglean_crypto_kdf_free(out, out_len);
+    return mk_kdf_error("scrypt failed");
+  }
+  return copy_kdf_output(out, out_len);
+}
+
+lean_obj_res lean_ziglean_crypto_argon2id(
+  b_lean_obj_arg password,
+  b_lean_obj_arg salt,
+  uint32_t t,
+  uint32_t m_kib,
+  uint32_t p,
+  uint64_t out_len,
+  lean_obj_arg world
+) {
+  (void)world;
+  uint8_t* out = 0;
+  uint32_t status = ziglean_crypto_argon2id(
+    lean_sarray_cptr((lean_object*)password),
+    (uint64_t)lean_sarray_size(password),
+    lean_sarray_cptr((lean_object*)salt),
+    (uint64_t)lean_sarray_size(salt),
+    t,
+    m_kib,
+    p,
+    out_len,
+    &out
+  );
+  if (status != 0) {
+    ziglean_crypto_kdf_free(out, out_len);
+    return mk_kdf_error("argon2id failed");
+  }
+  return copy_kdf_output(out, out_len);
+}
