@@ -61,3 +61,16 @@ def main : IO Unit := do
       assertEq "bool token" toks[5]!.kind JsonTokenKind.bool
       assertEq "null token" toks[6]!.kind JsonTokenKind.null
       assertEq "last token" toks[8]!.kind JsonTokenKind.objectEnd
+  match ← Json.parseTokens (bytes "{\"a\":1,}") with
+  | Except.ok toks =>
+      throw <| IO.userError s!"parse error expected, got {toks.size} tokens"
+  | Except.error err =>
+      assertEq "error code" err.code 1
+      assertEq "error offset present" (decide (err.offset > 0)) true
+
+  for _ in [0:100] do
+    match ← Json.parseTokens (bytes "[1,2,3]") with
+    | Except.error err =>
+        throw <| IO.userError s!"repeat parse failed with {err.code}"
+    | Except.ok toks =>
+        assertEq "repeat token count" toks.size 5
