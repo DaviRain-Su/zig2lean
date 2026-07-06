@@ -2,3 +2,4 @@
 .superpowers/
 .lake/
 native/.zig-cache/
+native/zig-out/
