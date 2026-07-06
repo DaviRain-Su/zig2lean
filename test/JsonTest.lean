@@ -66,7 +66,28 @@ def main : IO Unit := do
       throw <| IO.userError s!"parse error expected, got {toks.size} tokens"
   | Except.error err =>
       assertEq "error code" err.code 1
-      assertEq "error offset present" (decide (err.offset > 0)) true
+      assertEq "error offset" err.offset 7
+
+  match ← Json.parseTokens (bytes "[\"a\\nb\"]") with
+  | Except.error err =>
+      throw <| IO.userError s!"escaped string parse expected, got {err.code}"
+  | Except.ok toks =>
+      assertEq "escaped string token count" toks.size 3
+      assertEq "escaped string token kind" toks[1]!.kind JsonTokenKind.string
+      assertEq "escaped string offset" toks[1]!.offset 2
+      assertEq "escaped string raw length" toks[1]!.length 4
+
+  match ← Json.parseTokens (bytes "[\"\\u263A\",\"\\uD83D\\uDE00\"]") with
+  | Except.error err =>
+      throw <| IO.userError s!"unicode string parse expected, got {err.code}"
+  | Except.ok toks =>
+      assertEq "unicode string token count" toks.size 4
+      assertEq "unicode string first kind" toks[1]!.kind JsonTokenKind.string
+      assertEq "unicode string first offset" toks[1]!.offset 2
+      assertEq "unicode string first raw length" toks[1]!.length 6
+      assertEq "unicode string second kind" toks[2]!.kind JsonTokenKind.string
+      assertEq "unicode string second offset" toks[2]!.offset 11
+      assertEq "unicode string second raw length" toks[2]!.length 12
 
   for _ in [0:100] do
     match ← Json.parseTokens (bytes "[1,2,3]") with

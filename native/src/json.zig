@@ -33,6 +33,19 @@ fn spanFromSlice(input: []const u8, slice: []const u8) struct { offset: usize, l
     return .{ .offset = start, .length = slice.len };
 }
 
+const StringSpan = struct {
+    start: usize,
+    end: usize,
+};
+
+fn extendStringSpan(span: *?StringSpan, start: usize, end: usize) void {
+    if (span.*) |current| {
+        span.* = .{ .start = current.start, .end = end };
+    } else {
+        span.* = .{ .start = start, .end = end };
+    }
+}
+
 export fn ziglean_json_parse_tokens(
     input: [*]const u8,
     input_len: u64,
@@ -46,6 +59,7 @@ export fn ziglean_json_parse_tokens(
 
     var list = TokenList.empty;
     errdefer list.deinit(std.heap.c_allocator);
+    var pending_string: ?StringSpan = null;
 
     while (true) {
         const before = scanner.cursor;
@@ -62,8 +76,33 @@ export fn ziglean_json_parse_tokens(
             .array_begin => appendToken(&list, 3, after - 1, 1) catch return 2,
             .array_end => appendToken(&list, 4, after - 1, 1) catch return 2,
             .string => |s| {
+                if (pending_string) |span| {
+                    const end = if (s.len > 0) blk: {
+                        const tail = spanFromSlice(bytes, s);
+                        break :blk tail.offset + tail.length;
+                    } else span.end;
+                    appendToken(&list, 5, span.start, end - span.start) catch return 2;
+                    pending_string = null;
+                } else {
+                    const span = spanFromSlice(bytes, s);
+                    appendToken(&list, 5, span.offset, span.length) catch return 2;
+                }
+            },
+            .partial_string => |s| {
                 const span = spanFromSlice(bytes, s);
-                appendToken(&list, 5, span.offset, span.length) catch return 2;
+                extendStringSpan(&pending_string, span.offset, span.offset + span.length);
+            },
+            .partial_string_escaped_1 => {
+                extendStringSpan(&pending_string, after - 2, after);
+            },
+            .partial_string_escaped_2 => {
+                extendStringSpan(&pending_string, after - 6, after);
+            },
+            .partial_string_escaped_3 => {
+                extendStringSpan(&pending_string, after - 6, after);
+            },
+            .partial_string_escaped_4 => {
+                extendStringSpan(&pending_string, after - 12, after);
             },
             .number => |s| {
                 const span = spanFromSlice(bytes, s);
