@@ -11,6 +11,11 @@ lean_exe json_test where
   srcDir := "test"
   supportInterpreter := true
 
+lean_exe crypto_hash_test where
+  root := `CryptoHashTest
+  srcDir := "test"
+  supportInterpreter := true
+
 extern_lib liblean_ziglean pkg := do
   let libName := nameToStaticLib "lean_ziglean"
   let outDir := pkg.buildDir / "native"
