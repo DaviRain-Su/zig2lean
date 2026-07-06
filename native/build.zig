@@ -26,6 +26,10 @@ pub fn build(b: *std.Build) void {
         .file = b.path("c/lean_crypto_hash.c"),
         .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
     });
+    lib.root_module.addCSourceFile(.{
+        .file = b.path("c/lean_codec.c"),
+        .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
+    });
     lib.root_module.link_libc = true;
     b.installArtifact(lib);
 }

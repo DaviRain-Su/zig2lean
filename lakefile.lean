@@ -28,19 +28,25 @@ extern_lib liblean_ziglean pkg := do
   let rootSrcJob ← inputFile (pkg.dir / "native" / "src" / "root.zig") true
   let zigSrcJob ← inputFile (pkg.dir / "native" / "src" / "json.zig") true
   let cryptoSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash.zig") true
+  let codecSrcJob ← inputFile (pkg.dir / "native" / "src" / "codec.zig") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
   let cryptoCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash.c") true
+  let codecCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_codec.c") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
   let cryptoHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash.h") true
+  let codecHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_codec.h") true
   let buildJob ← inputFile (pkg.dir / "native" / "build.zig") true
   let depJob :=
     buildJob.mix <|
       rootSrcJob.mix <|
         zigSrcJob.mix <|
           cryptoSrcJob.mix <|
-            cSrcJob.mix <|
-              cryptoCSrcJob.mix <|
-                hdrJob.mix cryptoHdrJob
+            codecSrcJob.mix <|
+              cSrcJob.mix <|
+                cryptoCSrcJob.mix <|
+                  codecCSrcJob.mix <|
+                    hdrJob.mix <|
+                      cryptoHdrJob.mix codecHdrJob
   buildFileAfterDep libFile depJob fun _ => do
     IO.FS.createDirAll libFile.parent.get!
     let leanPrefixOut ← IO.Process.output {
