@@ -1,4 +1,5 @@
 import ZigLean.Crypto.Hash.FFI
+import ZigLean.Crypto.Hash.Stream
 
 namespace ZigLean.Crypto.Hash
 

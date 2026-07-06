@@ -27,6 +27,10 @@ pub fn build(b: *std.Build) void {
         .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
     });
     lib.root_module.addCSourceFile(.{
+        .file = b.path("c/lean_crypto_hash_stream.c"),
+        .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
+    });
+    lib.root_module.addCSourceFile(.{
         .file = b.path("c/lean_codec.c"),
         .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
     });

@@ -66,6 +66,7 @@ extern_lib liblean_ziglean pkg := do
   let rootSrcJob ← inputFile (pkg.dir / "native" / "src" / "root.zig") true
   let jsonSrcJob ← inputFile (pkg.dir / "native" / "src" / "json.zig") true
   let cryptoSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash.zig") true
+  let cryptoStreamSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash_stream.zig") true
   let kdfSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_kdf.zig") true
   let signSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_sign.zig") true
   let aeadSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_aead.zig") true
@@ -75,6 +76,7 @@ extern_lib liblean_ziglean pkg := do
   let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
   let cryptoCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash.c") true
+  let cryptoStreamCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash_stream.c") true
   let kdfCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_kdf.c") true
   let signCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_sign.c") true
   let aeadCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_aead.c") true
@@ -84,6 +86,7 @@ extern_lib liblean_ziglean pkg := do
   let compressCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_compress.c") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
   let cryptoHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash.h") true
+  let cryptoStreamHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash_stream.h") true
   let kdfHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_kdf.h") true
   let signHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_sign.h") true
   let aeadHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_aead.h") true
@@ -97,7 +100,8 @@ extern_lib liblean_ziglean pkg := do
       rootSrcJob.mix <|
         jsonSrcJob.mix <|
           cryptoSrcJob.mix <|
-            kdfSrcJob.mix <|
+            cryptoStreamSrcJob.mix <|
+              kdfSrcJob.mix <|
               signSrcJob.mix <|
                 aeadSrcJob.mix <|
                   checksumSrcJob.mix <|
@@ -106,7 +110,8 @@ extern_lib liblean_ziglean pkg := do
                         compressSrcJob.mix <|
                           cSrcJob.mix <|
                             cryptoCSrcJob.mix <|
-                              kdfCSrcJob.mix <|
+                              cryptoStreamCSrcJob.mix <|
+                                kdfCSrcJob.mix <|
                                 signCSrcJob.mix <|
                                   aeadCSrcJob.mix <|
                                     checksumCSrcJob.mix <|
@@ -115,7 +120,8 @@ extern_lib liblean_ziglean pkg := do
                                           compressCSrcJob.mix <|
                                             hdrJob.mix <|
                                               cryptoHdrJob.mix <|
-                                                kdfHdrJob.mix <|
+                                                cryptoStreamHdrJob.mix <|
+                                                  kdfHdrJob.mix <|
                                                   signHdrJob.mix <|
                                                     aeadHdrJob.mix <|
                                                       checksumHdrJob.mix <|

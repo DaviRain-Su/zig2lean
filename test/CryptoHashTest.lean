@@ -3,6 +3,7 @@ import ZigLean
 namespace CryptoHashTest
 
 open ZigLean.Crypto.Hash
+open ZigLean.Crypto.Hash.Stream
 
 def bytes (s : String) : ByteArray :=
   s.toUTF8
@@ -92,6 +93,48 @@ def main : IO Unit := do
   for _ in [0:50] do
     expectHex "repeat sha256 abc" (← sha256 (bytes "abc"))
       "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+  match ← digest HashAlgorithm.sha256 #[bytes "abc"] with
+  | Except.error err => throw <| IO.userError s!"stream sha256 abc failed: {err.code}"
+  | Except.ok out =>
+    expectHex "stream sha256 abc" out "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+  match ← digest HashAlgorithm.sha256 #[bytes "ab", bytes "c"] with
+  | Except.error err => throw <| IO.userError s!"stream sha256 chunked failed: {err.code}"
+  | Except.ok out =>
+    expectHex "stream sha256 chunked" out "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+  match ← digest HashAlgorithm.sha256 #[] with
+  | Except.error err => throw <| IO.userError s!"stream sha256 empty failed: {err.code}"
+  | Except.ok out =>
+    expectHex "stream sha256 empty" out "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+  match ← digest HashAlgorithm.blake3 #[bytes "abc"] with
+  | Except.error err => throw <| IO.userError s!"stream blake3 abc failed: {err.code}"
+  | Except.ok out =>
+    expectHex "stream blake3 abc" out "6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85"
+
+  match ← init HashAlgorithm.sha256 with
+  | Except.error err => throw <| IO.userError s!"stream init failed: {err.code}"
+  | Except.ok ctx => do
+    match ← update ctx (bytes "abc") with
+    | Except.error err =>
+        free ctx
+        throw <| IO.userError s!"stream update failed: {err.code}"
+    | Except.ok () => pure ()
+    match ← final ctx with
+    | Except.error err =>
+        free ctx
+        throw <| IO.userError s!"stream final failed: {err.code}"
+    | Except.ok out =>
+      expectHex "stream manual sha256 abc" out "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    match ← update ctx (bytes "x") with
+    | Except.ok _ =>
+        free ctx
+        throw <| IO.userError "stream update after final should fail"
+    | Except.error err =>
+        assertEq "stream finalized code" err.code 3
+        free ctx
 
 end CryptoHashTest
 
