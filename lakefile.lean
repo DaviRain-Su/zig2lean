@@ -15,7 +15,8 @@ script test do
     ("CompressTest", "compress_test"),
     ("CryptoExtendedTest", "crypto_extended_test"),
     ("JsonAstTest", "json_ast_test"),
-    ("JsonStreamTest", "json_stream_test")
+    ("JsonStreamTest", "json_stream_test"),
+    ("JsonPointerTest", "json_pointer_test")
   ]
   for (name, exe) in suites do
     IO.println s!"== {name} =="
@@ -62,6 +63,11 @@ lean_exe json_ast_test where
 
 lean_exe json_stream_test where
   root := `JsonStreamTest
+  srcDir := "test"
+  supportInterpreter := true
+
+lean_exe json_pointer_test where
+  root := `JsonPointerTest
   srcDir := "test"
   supportInterpreter := true
 

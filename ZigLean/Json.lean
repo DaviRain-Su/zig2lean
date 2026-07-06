@@ -2,6 +2,7 @@ import ZigLean.Json.FFI
 import ZigLean.Json.Decode
 import ZigLean.Json.Ast
 import ZigLean.Json.Stream
+import ZigLean.Json.Pointer
 
 namespace ZigLean.Json
 
