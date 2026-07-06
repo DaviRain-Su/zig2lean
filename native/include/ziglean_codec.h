@@ -21,6 +21,8 @@ uint32_t ziglean_codec_base64_encode(const uint8_t* input, uint64_t input_len, Z
 uint32_t ziglean_codec_base64_decode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
 uint32_t ziglean_codec_base64url_encode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
 uint32_t ziglean_codec_base64url_decode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
+uint32_t ziglean_codec_base58_encode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
+uint32_t ziglean_codec_base58_decode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
 void ziglean_codec_free(uint8_t* ptr, uint64_t len);
 
 #ifdef __cplusplus

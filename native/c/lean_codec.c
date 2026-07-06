@@ -103,3 +103,22 @@ lean_obj_res lean_ziglean_codec_base64url_decode(b_lean_obj_arg input, lean_obj_
   (void)ziglean_codec_base64url_decode((const uint8_t*)lean_string_cstr(input), (uint64_t)len, &result);
   return copy_result_bytes(&result);
 }
+
+lean_obj_res lean_ziglean_codec_base58_encode(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  ZigLeanCodecResult result = {0, 0, 0, 0, 0};
+  (void)ziglean_codec_base58_encode(
+    lean_sarray_cptr((lean_object*)input),
+    (uint64_t)lean_sarray_size(input),
+    &result
+  );
+  return copy_result_string(&result, "base58 encode failed");
+}
+
+lean_obj_res lean_ziglean_codec_base58_decode(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  ZigLeanCodecResult result = {0, 0, 0, 0, 0};
+  size_t len = lean_string_size(input) - 1u;
+  (void)ziglean_codec_base58_decode((const uint8_t*)lean_string_cstr(input), (uint64_t)len, &result);
+  return copy_result_bytes(&result);
+}

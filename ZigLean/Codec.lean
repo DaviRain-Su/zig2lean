@@ -54,4 +54,10 @@ def base64UrlEncode (input : ByteArray) : IO String :=
 def base64UrlDecode (input : String) : IO (Except CodecError ByteArray) := do
   pure <| decodeRawResult (← FFI.base64UrlDecodeRaw input)
 
+def base58Encode (input : ByteArray) : IO String :=
+  FFI.base58EncodeRaw input
+
+def base58Decode (input : String) : IO (Except CodecError ByteArray) := do
+  pure <| decodeRawResult (← FFI.base58DecodeRaw input)
+
 end ZigLean.Codec
