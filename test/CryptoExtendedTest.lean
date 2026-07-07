@@ -96,6 +96,13 @@ def main : IO Unit := do
   if validWrong then
     throw <| IO.userError "ed25519 verify should fail with wrong key"
 
+  let p256sig ← p256Sign seed msg
+  assertEq "p256 sig len" p256sig.size 64
+  let p256PubWrong := repeatByte 33 0x3d
+  let p256ValidWrong ← p256Verify p256PubWrong msg p256sig
+  if p256ValidWrong then
+    throw <| IO.userError "p256 verify should fail with wrong key"
+
   let crc ← crc32 (bytes "123456789")
   assertEq "crc32" crc 0xcbf43926
 
