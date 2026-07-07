@@ -3,6 +3,9 @@ import ZigLean.Crypto.Hash.Stream
 
 namespace ZigLean.Crypto.Hash
 
+def sha224 (input : ByteArray) : IO ByteArray :=
+  FFI.sha224Raw input
+
 def sha256 (input : ByteArray) : IO ByteArray :=
   FFI.sha256Raw input
 
@@ -23,6 +26,9 @@ def hmacSha256 (key message : ByteArray) : IO ByteArray :=
 
 def hmacSha512 (key message : ByteArray) : IO ByteArray :=
   FFI.hmacSha512Raw key message
+
+def sha384 (input : ByteArray) : IO ByteArray :=
+  FFI.sha384Raw input
 
 def sha512 (input : ByteArray) : IO ByteArray :=
   FFI.sha512Raw input
