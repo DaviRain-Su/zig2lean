@@ -13,6 +13,9 @@ extern "C" {
 #define ZIGLEAN_AES256GCMSIV_KEY_LEN 32
 #define ZIGLEAN_AES256GCMSIV_NONCE_LEN 12
 #define ZIGLEAN_AES256GCMSIV_TAG_LEN 16
+#define ZIGLEAN_AEGIS256_KEY_LEN 32
+#define ZIGLEAN_AEGIS256_NONCE_LEN 32
+#define ZIGLEAN_AEGIS256_TAG_LEN 16
 #define ZIGLEAN_CHACHA20POLY1305_KEY_LEN 32
 #define ZIGLEAN_CHACHA20POLY1305_NONCE_LEN 12
 #define ZIGLEAN_CHACHA20POLY1305_TAG_LEN 16
@@ -56,6 +59,26 @@ uint32_t ziglean_crypto_aes256gcmsiv_encrypt(
 );
 
 uint32_t ziglean_crypto_aes256gcmsiv_decrypt(
+  const uint8_t* key,
+  const uint8_t* nonce,
+  const uint8_t* aad,
+  uint64_t aad_len,
+  const uint8_t* ciphertext_and_tag,
+  uint64_t ciphertext_and_tag_len,
+  ZigLeanAeadResult* out_result
+);
+
+uint32_t ziglean_crypto_aegis256_encrypt(
+  const uint8_t* key,
+  const uint8_t* nonce,
+  const uint8_t* aad,
+  uint64_t aad_len,
+  const uint8_t* plaintext,
+  uint64_t plaintext_len,
+  ZigLeanAeadResult* out_result
+);
+
+uint32_t ziglean_crypto_aegis256_decrypt(
   const uint8_t* key,
   const uint8_t* nonce,
   const uint8_t* aad,

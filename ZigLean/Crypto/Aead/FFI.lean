@@ -12,6 +12,12 @@ opaque aes256GcmSivEncryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> 
 @[extern "lean_ziglean_crypto_aes256gcmsiv_decrypt"]
 opaque aes256GcmSivDecryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_aegis256_encrypt"]
+opaque aegis256EncryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_aegis256_decrypt"]
+opaque aegis256DecryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
+
 @[extern "lean_ziglean_crypto_chacha20poly1305_encrypt"]
 opaque chacha20Poly1305EncryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
 

@@ -48,6 +48,12 @@ def aes256GcmSivEncrypt (key nonce aad plaintext : ByteArray) : IO ByteArray :=
 def aes256GcmSivDecrypt (key nonce aad ciphertextAndTag : ByteArray) : IO (Except AeadError ByteArray) := do
   pure <| decodeRawResult (← FFI.aes256GcmSivDecryptRaw key nonce aad ciphertextAndTag)
 
+def aegis256Encrypt (key nonce aad plaintext : ByteArray) : IO ByteArray :=
+  FFI.aegis256EncryptRaw key nonce aad plaintext
+
+def aegis256Decrypt (key nonce aad ciphertextAndTag : ByteArray) : IO (Except AeadError ByteArray) := do
+  pure <| decodeRawResult (← FFI.aegis256DecryptRaw key nonce aad ciphertextAndTag)
+
 def chacha20Poly1305Encrypt (key nonce aad plaintext : ByteArray) : IO ByteArray :=
   FFI.chacha20Poly1305EncryptRaw key nonce aad plaintext
 

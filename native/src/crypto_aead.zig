@@ -1,6 +1,7 @@
 const std = @import("std");
 const Aes256Gcm = std.crypto.aead.aes_gcm.Aes256Gcm;
 const Aes256GcmSiv = std.crypto.aead.aes_gcm_siv.Aes256GcmSiv;
+const Aegis256 = std.crypto.aead.aegis.Aegis256;
 const ChaCha20Poly1305 = std.crypto.aead.chacha_poly.ChaCha20Poly1305;
 const c = @cImport({
     @cInclude("ziglean_crypto_aead.h");
@@ -163,6 +164,52 @@ fn decryptAes256GcmSiv(
     return setSuccess(out_result, out);
 }
 
+fn encryptAegis256(
+    key: [*]const u8,
+    nonce: [*]const u8,
+    aad: []const u8,
+    plaintext: []const u8,
+    out_result: *c.ZigLeanAeadResult,
+) u32 {
+    const out = allocBytes(plaintext.len + Aegis256.tag_length) catch return setError(out_result, STATUS_ALLOC);
+    var tag: [Aegis256.tag_length]u8 = undefined;
+    Aegis256.encrypt(
+        out[0..plaintext.len],
+        &tag,
+        plaintext,
+        aad,
+        nonce[0..Aegis256.nonce_length].*,
+        key[0..Aegis256.key_length].*,
+    );
+    @memcpy(out[plaintext.len..], &tag);
+    return setSuccess(out_result, out);
+}
+
+fn decryptAegis256(
+    key: [*]const u8,
+    nonce: [*]const u8,
+    aad: []const u8,
+    ciphertext_and_tag: []const u8,
+    out_result: *c.ZigLeanAeadResult,
+) u32 {
+    if (ciphertext_and_tag.len < Aegis256.tag_length) return setError(out_result, STATUS_INVALID);
+    const cipher_len = ciphertext_and_tag.len - Aegis256.tag_length;
+    const out = allocBytes(cipher_len) catch return setError(out_result, STATUS_ALLOC);
+    const tag = ciphertext_and_tag[cipher_len..][0..Aegis256.tag_length].*;
+    Aegis256.decrypt(
+        out,
+        ciphertext_and_tag[0..cipher_len],
+        tag,
+        aad,
+        nonce[0..Aegis256.nonce_length].*,
+        key[0..Aegis256.key_length].*,
+    ) catch {
+        std.heap.c_allocator.free(out);
+        return setError(out_result, STATUS_AUTH);
+    };
+    return setSuccess(out_result, out);
+}
+
 export fn ziglean_crypto_aes256gcm_encrypt(
     key: [*]const u8,
     nonce: [*]const u8,
@@ -209,6 +256,30 @@ export fn ziglean_crypto_aes256gcmsiv_decrypt(
     out_result: *c.ZigLeanAeadResult,
 ) u32 {
     return decryptAes256GcmSiv(key, nonce, aad[0..@intCast(aad_len)], ciphertext_and_tag[0..@intCast(ciphertext_and_tag_len)], out_result);
+}
+
+export fn ziglean_crypto_aegis256_encrypt(
+    key: [*]const u8,
+    nonce: [*]const u8,
+    aad: [*]const u8,
+    aad_len: u64,
+    plaintext: [*]const u8,
+    plaintext_len: u64,
+    out_result: *c.ZigLeanAeadResult,
+) u32 {
+    return encryptAegis256(key, nonce, aad[0..@intCast(aad_len)], plaintext[0..@intCast(plaintext_len)], out_result);
+}
+
+export fn ziglean_crypto_aegis256_decrypt(
+    key: [*]const u8,
+    nonce: [*]const u8,
+    aad: [*]const u8,
+    aad_len: u64,
+    ciphertext_and_tag: [*]const u8,
+    ciphertext_and_tag_len: u64,
+    out_result: *c.ZigLeanAeadResult,
+) u32 {
+    return decryptAegis256(key, nonce, aad[0..@intCast(aad_len)], ciphertext_and_tag[0..@intCast(ciphertext_and_tag_len)], out_result);
 }
 
 export fn ziglean_crypto_chacha20poly1305_encrypt(
