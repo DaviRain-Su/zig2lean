@@ -49,6 +49,7 @@ export fn ziglean_uuid_v4(out_result: *c.ZigLeanUuidResult) u32 {
 }
 
 export fn ziglean_uuid_free(ptr: ?[*]u8, len: u64) void {
+    if (len > std.math.maxInt(usize)) return;
     if (ptr) |p| {
         std.heap.c_allocator.free(p[0..@intCast(len)]);
     }
