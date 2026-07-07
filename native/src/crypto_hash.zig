@@ -1,5 +1,12 @@
 const std = @import("std");
 
+export fn ziglean_crypto_sha1(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[20]u8 = @ptrCast(out_digest);
+    std.crypto.hash.Sha1.hash(bytes, out, .{});
+    return 0;
+}
+
 export fn ziglean_crypto_sha224(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
     const bytes = input[0..@intCast(input_len)];
     const out: *[28]u8 = @ptrCast(out_digest);

@@ -1,5 +1,8 @@
 namespace ZigLean.Crypto.Hash.FFI
 
+@[extern "lean_ziglean_crypto_sha1"]
+opaque sha1Raw : @& ByteArray -> IO ByteArray
+
 @[extern "lean_ziglean_crypto_sha224"]
 opaque sha224Raw : @& ByteArray -> IO ByteArray
 

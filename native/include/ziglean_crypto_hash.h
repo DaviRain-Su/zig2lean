@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+#define ZIGLEAN_CRYPTO_SHA1_LEN 20
 #define ZIGLEAN_CRYPTO_SHA224_LEN 28
 #define ZIGLEAN_CRYPTO_SHA256_LEN 32
 #define ZIGLEAN_CRYPTO_SHA384_LEN 48
@@ -25,6 +26,12 @@ extern "C" {
 #define ZIGLEAN_CRYPTO_HMAC_SHA256_LEN 32
 #define ZIGLEAN_CRYPTO_HMAC_SHA384_LEN 48
 #define ZIGLEAN_CRYPTO_HMAC_SHA512_LEN 64
+
+uint32_t ziglean_crypto_sha1(
+  const uint8_t* input,
+  uint64_t input_len,
+  uint8_t* out_digest
+);
 
 uint32_t ziglean_crypto_sha224(
   const uint8_t* input,
