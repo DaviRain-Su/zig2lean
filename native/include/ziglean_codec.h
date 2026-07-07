@@ -25,6 +25,10 @@ uint32_t ziglean_codec_base58_encode(const uint8_t* input, uint64_t input_len, Z
 uint32_t ziglean_codec_base58_decode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
 uint32_t ziglean_codec_base32_encode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
 uint32_t ziglean_codec_base32_decode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
+uint32_t ziglean_codec_hex_encode_upper(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
+uint32_t ziglean_codec_base85_encode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
+uint32_t ziglean_codec_base85_decode(const uint8_t* input, uint64_t input_len, ZigLeanCodecResult* out_result);
+uint32_t ziglean_codec_timing_safe_eq(const uint8_t* a, uint64_t a_len, const uint8_t* b, uint64_t b_len);
 void ziglean_codec_free(uint8_t* ptr, uint64_t len);
 
 #ifdef __cplusplus

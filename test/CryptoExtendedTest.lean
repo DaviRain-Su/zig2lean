@@ -11,6 +11,7 @@ open ZigLean.Crypto.Aead
 open ZigLean.Crypto.Dh
 open ZigLean.Crypto.StreamCipher
 open ZigLean.Crypto.Aes
+open ZigLean.Codec
 open ZigLean.Hash.Checksum
 open ZigLean.Leb128
 
@@ -277,6 +278,28 @@ def main : IO Unit := do
   match ← aes256SivDecrypt sivKey ByteArray.empty sivAad sivTampered with
   | Except.ok _ => throw <| IO.userError "aes256siv should have rejected tampered ct"
   | Except.error _ => pure ()
+
+  -- Codec: Base16 upper, Base85, and constant-time comparison.
+  let codecPt := bytes "The quick brown fox jumps over the lazy dog."
+  let hexUpper ← hexEncodeUpper codecPt
+  assertEq "hex upper" hexUpper "54686520717569636B2062726F776E20666F78206A756D7073206F76657220746865206C617A7920646F672E"
+  let hexLower ← hexEncodeLower codecPt
+  assertEq "hex lower" hexLower "54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f672e"
+
+  let b85 ← base85Encode codecPt
+  assertEq "base85 vector" b85 "<+ohcEHPu*CER),Dg-(AAoDo:C3=B4F!,CEATAo8BOr<&@=!2AA8c*5"
+  match ← base85Decode b85 with
+  | Except.ok out => if out != codecPt then throw <| IO.userError "base85 roundtrip mismatch"
+  | Except.error err => throw <| IO.userError s!"base85 decode failed: {err.code}"
+
+  let eqSame ← timingSafeEq codecPt codecPt
+  if not eqSame then throw <| IO.userError "timingSafeEq should report equal"
+  let diff := ByteArray.empty
+    |>.push (UInt8.ofNat 0x00) |>.push (UInt8.ofNat 0x01) |>.push (UInt8.ofNat 0x02)
+  let sameLen := ByteArray.empty
+    |>.push (UInt8.ofNat 0x00) |>.push (UInt8.ofNat 0x01) |>.push (UInt8.ofNat 0x03)
+  let eqDiff ← timingSafeEq diff sameLen
+  if eqDiff then throw <| IO.userError "timingSafeEq should report not equal"
 
 end CryptoExtendedTest
 

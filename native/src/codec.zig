@@ -296,6 +296,113 @@ export fn ziglean_codec_base58_decode(input: [*]const u8, input_len: u64, out_re
     return base58Decode(input[0..@intCast(input_len)], out_result);
 }
 
+export fn ziglean_codec_hex_encode_upper(input: [*]const u8, input_len: u64, out_result: *c.ZigLeanCodecResult) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out = allocBytes(bytes.len * 2) catch return setError(out_result, STATUS_ALLOC);
+    const alphabet = "0123456789ABCDEF";
+    for (bytes, 0..) |b, i| {
+        out[i * 2] = alphabet[b >> 4];
+        out[i * 2 + 1] = alphabet[b & 0x0f];
+    }
+    return setSuccess(out_result, out);
+}
+
+// ASCII85 (Adobe variant, no <~> delimiters, no zero-shortcut).
+const base85_alphabet = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+fn encodeBase85(input: []const u8, out_result: *c.ZigLeanCodecResult) u32 {
+    if (input.len == 0) return setSuccess(out_result, &[_]u8{});
+    const out_len = (input.len + 3) / 4 * 5;
+    const out = allocBytes(out_len) catch return setError(out_result, STATUS_ALLOC);
+    var in_idx: usize = 0;
+    var out_idx: usize = 0;
+    while (in_idx < input.len) : (in_idx += 4) {
+        const chunk_len = @min(4, input.len - in_idx);
+        var buf: [4]u8 = .{0} ** 4;
+        @memcpy(buf[0..chunk_len], input[in_idx .. in_idx + chunk_len]);
+        var value: u32 = 0;
+        for (buf) |b| {
+            value = value * 256 + b;
+        }
+        var digits: [5]u8 = undefined;
+        var i: usize = 5;
+        var v = value;
+        while (i > 0) : (i -= 1) {
+            digits[i - 1] = base85_alphabet[@intCast(v % 85)];
+            v /= 85;
+        }
+        const emit = if (chunk_len == 4) 5 else chunk_len + 1;
+        @memcpy(out[out_idx .. out_idx + emit], digits[0..emit]);
+        out_idx += emit;
+    }
+    const final_out = allocBytes(out_idx) catch {
+        std.heap.c_allocator.free(out);
+        return setError(out_result, STATUS_ALLOC);
+    };
+    @memcpy(final_out, out[0..out_idx]);
+    std.heap.c_allocator.free(out);
+    return setSuccess(out_result, final_out);
+}
+
+fn decodeBase85(input: []const u8, out_result: *c.ZigLeanCodecResult) u32 {
+    if (input.len == 0) return setSuccess(out_result, &[_]u8{});
+    if (input.len % 5 != 0) return setError(out_result, STATUS_INVALID_LENGTH);
+    const max_out_len = input.len / 5 * 4;
+    const out = allocBytes(max_out_len) catch return setError(out_result, STATUS_ALLOC);
+    var in_idx: usize = 0;
+    var out_idx: usize = 0;
+    while (in_idx < input.len) : (in_idx += 5) {
+        var value: u32 = 0;
+        for (input[in_idx .. in_idx + 5], 0..) |ch, i| {
+            if (ch < 33 or ch > 117) {
+                std.heap.c_allocator.free(out);
+                return setDecodeError(out_result, @intCast(in_idx + i));
+            }
+            value = value * 85 + (@as(u32, ch) - 33);
+        }
+        var buf: [4]u8 = undefined;
+        var v = value;
+        var i: usize = 4;
+        while (i > 0) : (i -= 1) {
+            buf[i - 1] = @intCast(v % 256);
+            v /= 256;
+        }
+        const emit: usize = if (in_idx + 5 == input.len) blk: {
+            var last: usize = 4;
+            while (last > 0 and buf[last - 1] == 0) : (last -= 1) {}
+            break :blk last;
+        } else 4;
+        @memcpy(out[out_idx .. out_idx + emit], buf[0..emit]);
+        out_idx += emit;
+    }
+    const final_out = allocBytes(out_idx) catch {
+        std.heap.c_allocator.free(out);
+        return setError(out_result, STATUS_ALLOC);
+    };
+    @memcpy(final_out, out[0..out_idx]);
+    std.heap.c_allocator.free(out);
+    return setSuccess(out_result, final_out);
+}
+
+export fn ziglean_codec_base85_encode(input: [*]const u8, input_len: u64, out_result: *c.ZigLeanCodecResult) u32 {
+    return encodeBase85(input[0..@intCast(input_len)], out_result);
+}
+
+export fn ziglean_codec_base85_decode(input: [*]const u8, input_len: u64, out_result: *c.ZigLeanCodecResult) u32 {
+    return decodeBase85(input[0..@intCast(input_len)], out_result);
+}
+
+export fn ziglean_codec_timing_safe_eq(a: [*]const u8, a_len: u64, b: [*]const u8, b_len: u64) u32 {
+    const sa = a[0..@intCast(a_len)];
+    const sb = b[0..@intCast(b_len)];
+    if (sa.len != sb.len) return 0;
+    var acc: u8 = 0;
+    for (sa, sb) |x, y| {
+        acc |= x ^ y;
+    }
+    return if (acc == 0) 1 else 0;
+}
+
 export fn ziglean_codec_free(ptr: ?[*]u8, len: u64) void {
     if (ptr) |p| {
         std.heap.c_allocator.free(p[0..@intCast(len)]);

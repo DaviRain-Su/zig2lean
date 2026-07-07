@@ -30,4 +30,16 @@ opaque base32EncodeRaw : @& ByteArray -> IO String
 @[extern "lean_ziglean_codec_base32_decode"]
 opaque base32DecodeRaw : @& String -> IO ByteArray
 
+@[extern "lean_ziglean_codec_hex_encode_upper"]
+opaque hexEncodeUpperRaw : @& ByteArray -> IO String
+
+@[extern "lean_ziglean_codec_base85_encode"]
+opaque base85EncodeRaw : @& ByteArray -> IO String
+
+@[extern "lean_ziglean_codec_base85_decode"]
+opaque base85DecodeRaw : @& String -> IO ByteArray
+
+@[extern "lean_ziglean_codec_timing_safe_eq"]
+opaque timingSafeEqRaw : @& ByteArray -> @& ByteArray -> IO UInt32
+
 end ZigLean.Codec.FFI

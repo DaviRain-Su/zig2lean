@@ -66,4 +66,19 @@ def base32Encode (input : ByteArray) : IO String :=
 def base32Decode (input : String) : IO (Except CodecError ByteArray) := do
   pure <| decodeRawResult (← FFI.base32DecodeRaw input)
 
+def hexEncodeUpper (input : ByteArray) : IO String :=
+  FFI.hexEncodeUpperRaw input
+
+def base85Encode (input : ByteArray) : IO String :=
+  FFI.base85EncodeRaw input
+
+def base85Decode (input : String) : IO (Except CodecError ByteArray) := do
+  pure <| decodeRawResult (← FFI.base85DecodeRaw input)
+
+/-- Constant-time byte comparison, suitable for MAC/tag verification.
+Returns `true` iff the two byte sequences are equal. -/
+def timingSafeEq (a b : ByteArray) : IO Bool := do
+  let r ← FFI.timingSafeEqRaw a b
+  return r != 0
+
 end ZigLean.Codec
