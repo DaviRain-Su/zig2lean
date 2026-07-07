@@ -48,4 +48,7 @@ def sha3_512 (input : ByteArray) : IO ByteArray :=
 def keccak256 (input : ByteArray) : IO ByteArray :=
   FFI.keccak256Raw input
 
+def keccak512 (input : ByteArray) : IO ByteArray :=
+  FFI.keccak512Raw input
+
 end ZigLean.Crypto.Hash

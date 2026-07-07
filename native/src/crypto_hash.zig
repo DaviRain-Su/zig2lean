@@ -118,3 +118,10 @@ export fn ziglean_crypto_keccak256(input: [*]const u8, input_len: u64, out_diges
     std.crypto.hash.sha3.Keccak256.hash(bytes, out, .{});
     return 0;
 }
+
+export fn ziglean_crypto_keccak512(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[64]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha3.Keccak512.hash(bytes, out, .{});
+    return 0;
+}

@@ -45,4 +45,7 @@ opaque sha3_512Raw : @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_keccak256"]
 opaque keccak256Raw : @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_keccak512"]
+opaque keccak512Raw : @& ByteArray -> IO ByteArray
+
 end ZigLean.Crypto.Hash.FFI
