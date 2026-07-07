@@ -5,6 +5,9 @@ namespace ZigLean.Hash.Checksum
 def crc32 (input : ByteArray) : IO UInt32 :=
   FFI.crc32Raw input
 
+def crc32c (input : ByteArray) : IO UInt32 :=
+  FFI.crc32cRaw input
+
 def adler32 (input : ByteArray) : IO UInt32 :=
   FFI.adler32Raw input
 

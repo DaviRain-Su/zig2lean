@@ -3,6 +3,9 @@ namespace ZigLean.Hash.Checksum.FFI
 @[extern "lean_ziglean_hash_crc32"]
 opaque crc32Raw : @& ByteArray -> IO UInt32
 
+@[extern "lean_ziglean_hash_crc32c"]
+opaque crc32cRaw : @& ByteArray -> IO UInt32
+
 @[extern "lean_ziglean_hash_adler32"]
 opaque adler32Raw : @& ByteArray -> IO UInt32
 
