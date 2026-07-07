@@ -64,3 +64,17 @@ lean_obj_res lean_ziglean_hash_xxhash64(uint64_t seed, b_lean_obj_arg input, lea
   }
   return lean_io_result_mk_ok(lean_box_uint64(hash));
 }
+
+lean_obj_res lean_ziglean_hash_fnv1a64(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  uint64_t hash = 0;
+  uint32_t status = ziglean_hash_fnv1a64(
+    lean_sarray_cptr((lean_object*)input),
+    (uint64_t)lean_sarray_size(input),
+    &hash
+  );
+  if (status != 0) {
+    return mk_checksum_error("fnv1a64 failed");
+  }
+  return lean_io_result_mk_ok(lean_box_uint64(hash));
+}

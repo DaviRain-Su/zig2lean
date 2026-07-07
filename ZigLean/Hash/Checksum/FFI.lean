@@ -12,4 +12,7 @@ opaque adler32Raw : @& ByteArray -> IO UInt32
 @[extern "lean_ziglean_hash_xxhash64"]
 opaque xxHash64Raw : UInt64 -> @& ByteArray -> IO UInt64
 
+@[extern "lean_ziglean_hash_fnv1a64"]
+opaque fnv1a64Raw : @& ByteArray -> IO UInt64
+
 end ZigLean.Hash.Checksum.FFI

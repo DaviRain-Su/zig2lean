@@ -14,4 +14,7 @@ def adler32 (input : ByteArray) : IO UInt32 :=
 def xxHash64 (seed : UInt64) (input : ByteArray) : IO UInt64 :=
   FFI.xxHash64Raw seed input
 
+def fnv1a64 (input : ByteArray) : IO UInt64 :=
+  FFI.fnv1a64Raw input
+
 end ZigLean.Hash.Checksum

@@ -26,3 +26,8 @@ export fn ziglean_hash_xxhash64(seed: u64, input: [*]const u8, input_len: u64, o
     out_hash.* = std.hash.XxHash64.hash(seed, input[0..@intCast(input_len)]);
     return 0;
 }
+
+export fn ziglean_hash_fnv1a64(input: [*]const u8, input_len: u64, out_hash: *u64) u32 {
+    out_hash.* = std.hash.Fnv1a_64.hash(input[0..@intCast(input_len)]);
+    return 0;
+}
