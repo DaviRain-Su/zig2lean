@@ -23,6 +23,10 @@ pub fn build(b: *std.Build) void {
         .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
     });
     lib.root_module.addCSourceFile(.{
+        .file = b.path("c/lean_uuid.c"),
+        .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
+    });
+    lib.root_module.addCSourceFile(.{
         .file = b.path("c/lean_json.c"),
         .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
     });

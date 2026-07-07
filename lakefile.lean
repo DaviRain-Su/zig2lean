@@ -17,7 +17,8 @@ script test do
     ("JsonAstTest", "json_ast_test"),
     ("JsonStreamTest", "json_stream_test"),
     ("JsonPointerTest", "json_pointer_test"),
-    ("RandomTest", "random_test")
+    ("RandomTest", "random_test"),
+    ("UuidTest", "uuid_test")
   ]
   for (name, exe) in suites do
     IO.println s!"== {name} =="
@@ -77,6 +78,11 @@ lean_exe random_test where
   srcDir := "test"
   supportInterpreter := true
 
+lean_exe uuid_test where
+  root := `UuidTest
+  srcDir := "test"
+  supportInterpreter := true
+
 extern_lib liblean_ziglean pkg := do
   let libName := nameToStaticLib "lean_ziglean"
   let outDir := pkg.buildDir / "native"
@@ -96,6 +102,7 @@ extern_lib liblean_ziglean pkg := do
   let codecSrcJob ← inputFile (pkg.dir / "native" / "src" / "codec.zig") true
   let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
   let randomCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_random.c") true
+  let uuidCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_uuid.c") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
   let jsonStreamCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json_stream.c") true
   let cryptoCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash.c") true
@@ -138,6 +145,7 @@ extern_lib liblean_ziglean pkg := do
                               codecSrcJob.mix <|
                                 compressSrcJob.mix <|
                                   randomCSrcJob.mix <|
+                                    uuidCSrcJob.mix <|
                                     cSrcJob.mix <|
                                       jsonStreamCSrcJob.mix <|
                                         cryptoCSrcJob.mix <|
