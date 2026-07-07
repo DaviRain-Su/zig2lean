@@ -14,4 +14,10 @@ def secp256k1Sign (secretKey message : ByteArray) : IO ByteArray :=
 def secp256k1Verify (publicKey message signature : ByteArray) : IO Bool :=
   FFI.secp256k1VerifyRaw publicKey message signature
 
+def p256Sign (seed message : ByteArray) : IO ByteArray :=
+  FFI.p256SignRaw seed message
+
+def p256Verify (publicKey message signature : ByteArray) : IO Bool :=
+  FFI.p256VerifyRaw publicKey message signature
+
 end ZigLean.Crypto.Sign

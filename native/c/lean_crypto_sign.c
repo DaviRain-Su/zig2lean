@@ -96,3 +96,48 @@ lean_obj_res lean_ziglean_crypto_secp256k1_verify(
   }
   return lean_io_result_mk_ok(lean_box(valid != 0));
 }
+
+lean_obj_res lean_ziglean_crypto_p256_sign(
+  b_lean_obj_arg seed,
+  b_lean_obj_arg message,
+  lean_obj_arg world
+) {
+  (void)world;
+  if (lean_sarray_size(seed) != ZIGLEAN_P256_SEED_LEN) {
+    return mk_sign_error("p256 seed must be 32 bytes");
+  }
+  lean_object* out = lean_alloc_sarray(1, ZIGLEAN_P256_SIGNATURE_LEN, ZIGLEAN_P256_SIGNATURE_LEN);
+  uint32_t status = ziglean_crypto_p256_sign(
+    lean_sarray_cptr((lean_object*)seed),
+    lean_sarray_cptr((lean_object*)message),
+    (uint64_t)lean_sarray_size(message),
+    lean_sarray_cptr(out)
+  );
+  if (status != 0) {
+    lean_dec(out);
+    return mk_sign_error("p256 sign failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_p256_verify(
+  b_lean_obj_arg public_key,
+  b_lean_obj_arg message,
+  b_lean_obj_arg signature,
+  lean_obj_arg world
+) {
+  (void)world;
+  uint32_t valid = 0;
+  uint32_t status = ziglean_crypto_p256_verify(
+    lean_sarray_cptr((lean_object*)public_key),
+    (uint64_t)lean_sarray_size(public_key),
+    lean_sarray_cptr((lean_object*)message),
+    (uint64_t)lean_sarray_size(message),
+    lean_sarray_cptr((lean_object*)signature),
+    &valid
+  );
+  if (status != 0) {
+    return mk_sign_error("p256 verify failed");
+  }
+  return lean_io_result_mk_ok(lean_box(valid != 0));
+}

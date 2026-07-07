@@ -12,4 +12,10 @@ opaque secp256k1SignRaw : @& ByteArray -> @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_secp256k1_verify"]
 opaque secp256k1VerifyRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> IO Bool
 
+@[extern "lean_ziglean_crypto_p256_sign"]
+opaque p256SignRaw : @& ByteArray -> @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_p256_verify"]
+opaque p256VerifyRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> IO Bool
+
 end ZigLean.Crypto.Sign.FFI
