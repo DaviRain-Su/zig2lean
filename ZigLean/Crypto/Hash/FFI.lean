@@ -57,4 +57,7 @@ opaque keccak256Raw : @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_keccak512"]
 opaque keccak512Raw : @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_siphash64"]
+opaque siphash64Raw : @& ByteArray -> @& ByteArray -> IO ByteArray
+
 end ZigLean.Crypto.Hash.FFI

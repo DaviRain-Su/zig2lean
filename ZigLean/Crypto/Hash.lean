@@ -60,4 +60,7 @@ def keccak256 (input : ByteArray) : IO ByteArray :=
 def keccak512 (input : ByteArray) : IO ByteArray :=
   FFI.keccak512Raw input
 
+def siphash64 (key input : ByteArray) : IO ByteArray :=
+  FFI.siphash64Raw key input
+
 end ZigLean.Crypto.Hash

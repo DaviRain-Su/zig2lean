@@ -306,3 +306,29 @@ lean_obj_res lean_ziglean_crypto_keccak512(b_lean_obj_arg input, lean_obj_arg wo
   }
   return lean_io_result_mk_ok(out);
 }
+
+lean_obj_res lean_ziglean_crypto_siphash64(
+  b_lean_obj_arg key,
+  b_lean_obj_arg input,
+  lean_obj_arg world
+) {
+  (void)world;
+  if (lean_sarray_size(key) != 16) {
+    return mk_crypto_error("siphash64 key must be 16 bytes");
+  }
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* key_bytes = lean_sarray_cptr((lean_object*)key);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SIPHASH64_LEN);
+  uint32_t status = ziglean_crypto_siphash64(
+    key_bytes,
+    input_bytes,
+    (uint64_t)input_len,
+    lean_sarray_cptr(out)
+  );
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig siphash64 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}

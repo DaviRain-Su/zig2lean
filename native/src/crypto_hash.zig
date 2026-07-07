@@ -160,3 +160,16 @@ export fn ziglean_crypto_keccak512(input: [*]const u8, input_len: u64, out_diges
     std.crypto.hash.sha3.Keccak512.hash(bytes, out, .{});
     return 0;
 }
+
+export fn ziglean_crypto_siphash64(
+    key: [*]const u8,
+    input: [*]const u8,
+    input_len: u64,
+    out_hash: [*]u8,
+) u32 {
+    const key_bytes: *const [16]u8 = key[0..16];
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[8]u8 = @ptrCast(out_hash);
+    std.hash.SipHash64(2, 4).create(out, bytes, key_bytes);
+    return 0;
+}
