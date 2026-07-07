@@ -90,6 +90,11 @@ def main : IO Unit := do
   expectHex "hmac sha256 rfc4231 case 1" mac
     "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
 
+  let mac512 ← hmacSha512 hmacKey (bytes "Hi There")
+  assertEq "hmac sha512 length" mac512.size 64
+  expectHex "hmac sha512 rfc4231 case 1" mac512
+    "87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cdedaa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854"
+
   for _ in [0:50] do
     expectHex "repeat sha256 abc" (← sha256 (bytes "abc"))
       "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
