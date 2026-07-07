@@ -9,6 +9,9 @@ def sha256 (input : ByteArray) : IO ByteArray :=
 def blake3 (input : ByteArray) : IO ByteArray :=
   FFI.blake3Raw input
 
+def blake2b256 (input : ByteArray) : IO ByteArray :=
+  FFI.blake2b256Raw input
+
 def hmacSha256 (key message : ByteArray) : IO ByteArray :=
   FFI.hmacSha256Raw key message
 
