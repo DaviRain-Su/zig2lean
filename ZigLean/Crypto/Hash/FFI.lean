@@ -30,8 +30,17 @@ opaque sha384Raw : @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_sha512"]
 opaque sha512Raw : @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_sha3_224"]
+opaque sha3_224Raw : @& ByteArray -> IO ByteArray
+
 @[extern "lean_ziglean_crypto_sha3_256"]
 opaque sha3_256Raw : @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_sha3_384"]
+opaque sha3_384Raw : @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_sha3_512"]
+opaque sha3_512Raw : @& ByteArray -> IO ByteArray
 
 @[extern "lean_ziglean_crypto_keccak256"]
 opaque keccak256Raw : @& ByteArray -> IO ByteArray

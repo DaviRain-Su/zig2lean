@@ -84,10 +84,31 @@ export fn ziglean_crypto_sha512(input: [*]const u8, input_len: u64, out_digest: 
     return 0;
 }
 
+export fn ziglean_crypto_sha3_224(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[28]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha3.Sha3_224.hash(bytes, out, .{});
+    return 0;
+}
+
 export fn ziglean_crypto_sha3_256(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
     const bytes = input[0..@intCast(input_len)];
     const out: *[32]u8 = @ptrCast(out_digest);
     std.crypto.hash.sha3.Sha3_256.hash(bytes, out, .{});
+    return 0;
+}
+
+export fn ziglean_crypto_sha3_384(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[48]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha3.Sha3_384.hash(bytes, out, .{});
+    return 0;
+}
+
+export fn ziglean_crypto_sha3_512(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[64]u8 = @ptrCast(out_digest);
+    std.crypto.hash.sha3.Sha3_512.hash(bytes, out, .{});
     return 0;
 }
 

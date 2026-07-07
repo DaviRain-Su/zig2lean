@@ -166,6 +166,19 @@ lean_obj_res lean_ziglean_crypto_sha512(b_lean_obj_arg input, lean_obj_arg world
   return lean_io_result_mk_ok(out);
 }
 
+lean_obj_res lean_ziglean_crypto_sha3_224(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SHA3_224_LEN);
+  uint32_t status = ziglean_crypto_sha3_224(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig sha3_224 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
 lean_obj_res lean_ziglean_crypto_sha3_256(b_lean_obj_arg input, lean_obj_arg world) {
   (void)world;
   size_t input_len = lean_sarray_size(input);
@@ -175,6 +188,32 @@ lean_obj_res lean_ziglean_crypto_sha3_256(b_lean_obj_arg input, lean_obj_arg wor
   if (status != 0) {
     lean_dec(out);
     return mk_crypto_error("zig sha3_256 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_sha3_384(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SHA3_384_LEN);
+  uint32_t status = ziglean_crypto_sha3_384(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig sha3_384 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_sha3_512(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_SHA3_512_LEN);
+  uint32_t status = ziglean_crypto_sha3_512(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig sha3_512 failed");
   }
   return lean_io_result_mk_ok(out);
 }

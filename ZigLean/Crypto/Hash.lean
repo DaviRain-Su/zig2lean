@@ -33,8 +33,17 @@ def sha384 (input : ByteArray) : IO ByteArray :=
 def sha512 (input : ByteArray) : IO ByteArray :=
   FFI.sha512Raw input
 
+def sha3_224 (input : ByteArray) : IO ByteArray :=
+  FFI.sha3_224Raw input
+
 def sha3_256 (input : ByteArray) : IO ByteArray :=
   FFI.sha3_256Raw input
+
+def sha3_384 (input : ByteArray) : IO ByteArray :=
+  FFI.sha3_384Raw input
+
+def sha3_512 (input : ByteArray) : IO ByteArray :=
+  FFI.sha3_512Raw input
 
 def keccak256 (input : ByteArray) : IO ByteArray :=
   FFI.keccak256Raw input
