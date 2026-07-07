@@ -8,6 +8,7 @@ open ZigLean.Crypto.Sign
 open ZigLean.Crypto.Aead
 open ZigLean.Crypto.Dh
 open ZigLean.Crypto.StreamCipher
+open ZigLean.Crypto.Aes
 open ZigLean.Hash.Checksum
 open ZigLean.Leb128
 
@@ -212,6 +213,28 @@ def main : IO Unit := do
   let legCt ← chacha20LegacyXor legKey legNonce 0 legPt
   expectHex "chacha20 legacy vector" legCt
     "4a14a89a88e3da973615140818636e86a6a1df9b74a72e8c21faf11e37641163f5bf76848f2e0898715a50ee"
+
+  -- AES-256 (CTR and CBC), cross-checked against Python `cryptography`.
+  let mut aesKey := ByteArray.empty
+  for i in [0:32] do
+    aesKey := aesKey.push (UInt8.ofNat i)
+  let mut aesIv := ByteArray.empty
+  for i in [0:16] do
+    aesIv := aesIv.push (UInt8.ofNat i)
+  let aesPt := bytes "The quick brown fox jumps over the lazy dog. AES CBC test."
+
+  let ctrCt ← aes256Ctr aesKey aesIv aesPt
+  expectHex "aes256 ctr vector" ctrCt
+    "0e066177798e18f59b0e374f6db4c8b2069c68f5a9f0352d26369427179700bb740057375bbfb584df8e6c8bc55082c1b688453108e4c29c1d6e"
+  -- CTR is symmetric: re-applying recovers the plaintext.
+  let ctrBack ← aes256Ctr aesKey aesIv ctrCt
+  assertEq "aes256 ctr roundtrip" ctrBack aesPt
+
+  let cbcCt ← aes256CbcEncrypt aesKey aesIv aesPt
+  expectHex "aes256 cbc vector" cbcCt
+    "4846f83aa211e239aa62a21f527f089ee9ddbead30ee15d4e79b607a621b97be33780183ae2b67b6979e33e391df7c127855ed7a01444a1d5184411d9ae9841d"
+  let cbcBack ← aes256CbcDecrypt aesKey aesIv cbcCt
+  assertEq "aes256 cbc roundtrip" cbcBack aesPt
 
 end CryptoExtendedTest
 

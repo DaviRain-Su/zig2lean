@@ -103,6 +103,7 @@ extern_lib liblean_ziglean pkg := do
   let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
   let dhSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_dh.zig") true
   let streamCipherSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_stream_cipher.zig") true
+  let aesSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_aes.zig") true
   let randomCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_random.c") true
   let uuidCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_uuid.c") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
@@ -118,6 +119,7 @@ extern_lib liblean_ziglean pkg := do
   let compressCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_compress.c") true
   let dhCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_dh.c") true
   let streamCipherCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_stream_cipher.c") true
+  let aesCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_aes.c") true
   let randomHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_random.h") true
   let uuidHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_uuid.h") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
@@ -133,6 +135,7 @@ extern_lib liblean_ziglean pkg := do
   let compressHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_compress.h") true
   let dhHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_dh.h") true
   let streamCipherHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_stream_cipher.h") true
+  let aesHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_aes.h") true
   let buildJob ← inputFile (pkg.dir / "native" / "build.zig") true
   let depJob :=
     buildJob.mix <|
@@ -174,7 +177,7 @@ extern_lib liblean_ziglean pkg := do
                                                                           aeadHdrJob.mix <|
                                                                             checksumHdrJob.mix <|
                                                                               leb128HdrJob.mix <|
-                                                                                codecHdrJob.mix <| compressHdrJob.mix <| dhHdrJob.mix <| dhCSrcJob.mix <| dhSrcJob.mix <| streamCipherHdrJob.mix <| streamCipherCSrcJob.mix <| streamCipherSrcJob
+                                                                                codecHdrJob.mix <| compressHdrJob.mix <| dhHdrJob.mix <| dhCSrcJob.mix <| dhSrcJob.mix <| streamCipherHdrJob.mix <| streamCipherCSrcJob.mix <| streamCipherSrcJob.mix <| aesHdrJob.mix <| aesCSrcJob.mix <| aesSrcJob
   buildFileAfterDep libFile depJob fun _ => do
     IO.FS.createDirAll libFile.parent.get!
     let leanPrefixOut ← IO.Process.output {
