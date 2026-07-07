@@ -101,6 +101,7 @@ extern_lib liblean_ziglean pkg := do
   let leb128SrcJob ← inputFile (pkg.dir / "native" / "src" / "leb128.zig") true
   let codecSrcJob ← inputFile (pkg.dir / "native" / "src" / "codec.zig") true
   let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
+  let dhSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_dh.zig") true
   let randomCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_random.c") true
   let uuidCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_uuid.c") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
@@ -114,6 +115,7 @@ extern_lib liblean_ziglean pkg := do
   let leb128CSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_leb128.c") true
   let codecCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_codec.c") true
   let compressCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_compress.c") true
+  let dhCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_dh.c") true
   let randomHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_random.h") true
   let uuidHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_uuid.h") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
@@ -127,6 +129,7 @@ extern_lib liblean_ziglean pkg := do
   let leb128HdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_leb128.h") true
   let codecHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_codec.h") true
   let compressHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_compress.h") true
+  let dhHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_dh.h") true
   let buildJob ← inputFile (pkg.dir / "native" / "build.zig") true
   let depJob :=
     buildJob.mix <|
@@ -168,7 +171,7 @@ extern_lib liblean_ziglean pkg := do
                                                                           aeadHdrJob.mix <|
                                                                             checksumHdrJob.mix <|
                                                                               leb128HdrJob.mix <|
-                                                                                codecHdrJob.mix compressHdrJob
+                                                                                codecHdrJob.mix <| compressHdrJob.mix <| dhHdrJob.mix <| dhCSrcJob.mix <| dhSrcJob
   buildFileAfterDep libFile depJob fun _ => do
     IO.FS.createDirAll libFile.parent.get!
     let leanPrefixOut ← IO.Process.output {

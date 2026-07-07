@@ -3,3 +3,4 @@
 .lake/
 native/.zig-cache/
 native/zig-out/
+.zig-cache-global/
