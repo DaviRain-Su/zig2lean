@@ -37,6 +37,7 @@ fn fillRandom(buf: []u8) void {
 }
 
 export fn ziglean_random_bytes(len: u64, out_result: *c.ZigLeanRandomResult) u32 {
+    if (len > std.math.maxInt(usize)) return setError(out_result, STATUS_TOO_LARGE);
     const size: usize = @intCast(len);
     const out = std.heap.c_allocator.alloc(u8, size) catch return setError(out_result, STATUS_ALLOC);
     fillRandom(out);
