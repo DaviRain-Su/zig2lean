@@ -13,6 +13,7 @@ extern "C" {
 #define ZIGLEAN_CRYPTO_KECCAK256_LEN 32
 #define ZIGLEAN_CRYPTO_BLAKE3_LEN 32
 #define ZIGLEAN_CRYPTO_BLAKE2B256_LEN 32
+#define ZIGLEAN_CRYPTO_BLAKE2B512_LEN 64
 #define ZIGLEAN_CRYPTO_HMAC_SHA256_LEN 32
 #define ZIGLEAN_CRYPTO_HMAC_SHA512_LEN 64
 
@@ -29,6 +30,12 @@ uint32_t ziglean_crypto_blake3(
 );
 
 uint32_t ziglean_crypto_blake2b256(
+  const uint8_t* input,
+  uint64_t input_len,
+  uint8_t* out_digest
+);
+
+uint32_t ziglean_crypto_blake2b512(
   const uint8_t* input,
   uint64_t input_len,
   uint8_t* out_digest
