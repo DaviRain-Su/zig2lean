@@ -99,6 +99,10 @@ def main : IO Unit := do
   let crc ← crc32 (bytes "123456789")
   assertEq "crc32" crc 0xcbf43926
 
+  let adler ← adler32 (bytes "123456789")
+  assertEq "adler32" adler 0x091e01de
+  assertEq "adler32 empty" (← adler32 ByteArray.empty) 1
+
   let hash ← xxHash64 0 (bytes "hello")
   assertEq "xxhash64 hello repeat" hash (← xxHash64 0 (bytes "hello"))
 
