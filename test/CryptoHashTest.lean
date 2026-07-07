@@ -125,6 +125,16 @@ def main : IO Unit := do
   expectHex "sha3_512 abc" sha3_512_abc
     "b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0"
 
+  let keccak512Empty ← keccak512 ByteArray.empty
+  assertEq "keccak512 empty length" keccak512Empty.size 64
+  expectHex "keccak512 empty" keccak512Empty
+    "0eab42de4c3ceb9235fc91acffe746b29c29a8c366b7c60e4e67c466f36a4304c00fa9caf9d87976ba469bcbe06713b435f091ef2769fb160cdab33d3670680e"
+
+  let keccak512Abc ← keccak512 (bytes "abc")
+  assertEq "keccak512 abc length" keccak512Abc.size 64
+  expectHex "keccak512 abc" keccak512Abc
+    "18587dc2ea106b9a1563e32b3312421ca164c7f1f07bc922a9c83d77cea3a1e5d0c69910739025372dc14ac9642629379540c17e2a65b19d77aa511a9d00bb96"
+
   let blakeEmpty ← blake3 ByteArray.empty
   assertEq "blake3 empty length" blakeEmpty.size 32
   expectHex "blake3 empty" blakeEmpty
