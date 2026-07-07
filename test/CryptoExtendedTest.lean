@@ -168,6 +168,12 @@ def main : IO Unit := do
   | Except.ok out => if out != plain then throw <| IO.userError "chacha roundtrip mismatch"
   | Except.error err => throw <| IO.userError s!"chacha decrypt failed: {err.code}"
 
+  let sivEnc ← aes256GcmSivEncrypt key nonce ByteArray.empty plain
+  assertEq "aes256gcm-siv enc len" sivEnc.size (plain.size + 16)
+  match ← aes256GcmSivDecrypt key nonce ByteArray.empty sivEnc with
+  | Except.ok out => if out != plain then throw <| IO.userError "aes256gcm-siv roundtrip mismatch"
+  | Except.error err => throw <| IO.userError s!"aes256gcm-siv decrypt failed: {err.code}"
+
 end CryptoExtendedTest
 
 def main : IO Unit :=
