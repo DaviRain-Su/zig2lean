@@ -78,3 +78,17 @@ lean_obj_res lean_ziglean_hash_fnv1a64(b_lean_obj_arg input, lean_obj_arg world)
   }
   return lean_io_result_mk_ok(lean_box_uint64(hash));
 }
+
+lean_obj_res lean_ziglean_hash_crc64ecma(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  uint64_t crc = 0;
+  uint32_t status = ziglean_hash_crc64ecma(
+    lean_sarray_cptr((lean_object*)input),
+    (uint64_t)lean_sarray_size(input),
+    &crc
+  );
+  if (status != 0) {
+    return mk_checksum_error("crc64ecma failed");
+  }
+  return lean_io_result_mk_ok(lean_box_uint64(crc));
+}

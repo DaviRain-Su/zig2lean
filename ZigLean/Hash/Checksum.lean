@@ -8,6 +8,9 @@ def crc32 (input : ByteArray) : IO UInt32 :=
 def crc32c (input : ByteArray) : IO UInt32 :=
   FFI.crc32cRaw input
 
+def crc64ecma (input : ByteArray) : IO UInt64 :=
+  FFI.crc64ecmaRaw input
+
 def adler32 (input : ByteArray) : IO UInt32 :=
   FFI.adler32Raw input
 
