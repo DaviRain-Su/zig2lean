@@ -109,6 +109,11 @@ def main : IO Unit := do
   let hash ← xxHash64 0 (bytes "hello")
   assertEq "xxhash64 hello repeat" hash (← xxHash64 0 (bytes "hello"))
 
+  let fnv ← fnv1a64 (bytes "hello")
+  assertEq "fnv1a64 hello" fnv 0xa430d84680aabd0b
+  assertEq "fnv1a64 empty" (← fnv1a64 ByteArray.empty) 0xcbf29ce484222325
+  assertEq "fnv1a64 abc" (← fnv1a64 (bytes "abc")) 0xe71fa2190541574b
+
   let encoded ← uleb128Encode 300
   assertEq "uleb128 300 bytes" encoded.size 2
   expectDecodeOk "uleb128 300 decode" (← uleb128Decode encoded) (· == 300)
