@@ -95,6 +95,11 @@ def main : IO Unit := do
   expectHex "blake2b256 abc" b2Abc
     "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319"
 
+  let b2_512_empty ← blake2b512 ByteArray.empty
+  assertEq "blake2b512 empty length" b2_512_empty.size 64
+  expectHex "blake2b512 empty" b2_512_empty
+    "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"
+
   let mac ← hmacSha256 hmacKey (bytes "Hi There")
   assertEq "hmac sha256 length" mac.size 32
   expectHex "hmac sha256 rfc4231 case 1" mac
