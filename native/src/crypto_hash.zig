@@ -42,6 +42,20 @@ export fn ziglean_crypto_blake2b512(input: [*]const u8, input_len: u64, out_dige
     return 0;
 }
 
+export fn ziglean_crypto_hmac_sha224(
+    key: [*]const u8,
+    key_len: u64,
+    message: [*]const u8,
+    message_len: u64,
+    out_mac: [*]u8,
+) u32 {
+    const key_bytes = key[0..@intCast(key_len)];
+    const message_bytes = message[0..@intCast(message_len)];
+    const out: *[28]u8 = @ptrCast(out_mac);
+    std.crypto.auth.hmac.sha2.HmacSha224.create(out, message_bytes, key_bytes);
+    return 0;
+}
+
 export fn ziglean_crypto_hmac_sha256(
     key: [*]const u8,
     key_len: u64,
@@ -53,6 +67,20 @@ export fn ziglean_crypto_hmac_sha256(
     const message_bytes = message[0..@intCast(message_len)];
     const out: *[32]u8 = @ptrCast(out_mac);
     std.crypto.auth.hmac.sha2.HmacSha256.create(out, message_bytes, key_bytes);
+    return 0;
+}
+
+export fn ziglean_crypto_hmac_sha384(
+    key: [*]const u8,
+    key_len: u64,
+    message: [*]const u8,
+    message_len: u64,
+    out_mac: [*]u8,
+) u32 {
+    const key_bytes = key[0..@intCast(key_len)];
+    const message_bytes = message[0..@intCast(message_len)];
+    const out: *[48]u8 = @ptrCast(out_mac);
+    std.crypto.auth.hmac.sha2.HmacSha384.create(out, message_bytes, key_bytes);
     return 0;
 }
 

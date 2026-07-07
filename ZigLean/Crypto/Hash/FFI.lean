@@ -18,8 +18,14 @@ opaque blake2s256Raw : @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_blake2b512"]
 opaque blake2b512Raw : @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_hmac_sha224"]
+opaque hmacSha224Raw : @& ByteArray -> @& ByteArray -> IO ByteArray
+
 @[extern "lean_ziglean_crypto_hmac_sha256"]
 opaque hmacSha256Raw : @& ByteArray -> @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_hmac_sha384"]
+opaque hmacSha384Raw : @& ByteArray -> @& ByteArray -> IO ByteArray
 
 @[extern "lean_ziglean_crypto_hmac_sha512"]
 opaque hmacSha512Raw : @& ByteArray -> @& ByteArray -> IO ByteArray

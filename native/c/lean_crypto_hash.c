@@ -90,6 +90,31 @@ lean_obj_res lean_ziglean_crypto_blake2b512(b_lean_obj_arg input, lean_obj_arg w
   return lean_io_result_mk_ok(out);
 }
 
+lean_obj_res lean_ziglean_crypto_hmac_sha224(
+  b_lean_obj_arg key,
+  b_lean_obj_arg message,
+  lean_obj_arg world
+) {
+  (void)world;
+  size_t key_len = lean_sarray_size(key);
+  size_t message_len = lean_sarray_size(message);
+  const uint8_t* key_bytes = lean_sarray_cptr((lean_object*)key);
+  const uint8_t* message_bytes = lean_sarray_cptr((lean_object*)message);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_HMAC_SHA224_LEN);
+  uint32_t status = ziglean_crypto_hmac_sha224(
+    key_bytes,
+    (uint64_t)key_len,
+    message_bytes,
+    (uint64_t)message_len,
+    lean_sarray_cptr(out)
+  );
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig hmac sha224 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
 lean_obj_res lean_ziglean_crypto_hmac_sha256(
   b_lean_obj_arg key,
   b_lean_obj_arg message,
@@ -111,6 +136,31 @@ lean_obj_res lean_ziglean_crypto_hmac_sha256(
   if (status != 0) {
     lean_dec(out);
     return mk_crypto_error("zig hmac sha256 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_hmac_sha384(
+  b_lean_obj_arg key,
+  b_lean_obj_arg message,
+  lean_obj_arg world
+) {
+  (void)world;
+  size_t key_len = lean_sarray_size(key);
+  size_t message_len = lean_sarray_size(message);
+  const uint8_t* key_bytes = lean_sarray_cptr((lean_object*)key);
+  const uint8_t* message_bytes = lean_sarray_cptr((lean_object*)message);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_HMAC_SHA384_LEN);
+  uint32_t status = ziglean_crypto_hmac_sha384(
+    key_bytes,
+    (uint64_t)key_len,
+    message_bytes,
+    (uint64_t)message_len,
+    lean_sarray_cptr(out)
+  );
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig hmac sha384 failed");
   }
   return lean_io_result_mk_ok(out);
 }
