@@ -8,6 +8,7 @@ comptime {
     _ = @import("crypto_kdf.zig");
     _ = @import("crypto_sign.zig");
     _ = @import("crypto_aead.zig");
+    _ = @import("crypto_dh.zig");
     _ = @import("hash_checksum.zig");
     _ = @import("leb128.zig");
     _ = @import("codec.zig");
