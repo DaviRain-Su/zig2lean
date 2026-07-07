@@ -119,6 +119,11 @@ def main : IO Unit := do
   assertEq "crc64ecma empty" (← crc64ecma ByteArray.empty) 0x0000000000000000
   assertEq "crc64ecma abc" (← crc64ecma (bytes "abc")) 0x66501a349a0e0855
 
+  let city ← cityhash64 (bytes "hello")
+  assertEq "cityhash64 hello" city 0xb48be5a931380ce8
+  assertEq "cityhash64 empty" (← cityhash64 ByteArray.empty) 0x9ae16a3b2f90404f
+  assertEq "cityhash64 abc" (← cityhash64 (bytes "abc")) 0x24a5b3a074e7f369
+
   let encoded ← uleb128Encode 300
   assertEq "uleb128 300 bytes" encoded.size 2
   expectDecodeOk "uleb128 300 decode" (← uleb128Decode encoded) (· == 300)
