@@ -7,6 +7,7 @@ open ZigLean.Crypto.Kdf
 open ZigLean.Crypto.Sign
 open ZigLean.Crypto.Aead
 open ZigLean.Crypto.Dh
+open ZigLean.Crypto.StreamCipher
 open ZigLean.Hash.Checksum
 open ZigLean.Leb128
 
@@ -180,6 +181,37 @@ def main : IO Unit := do
   match ← aegis256Decrypt key aegisNonce ByteArray.empty aegisEnc with
   | Except.ok out => if out != plain then throw <| IO.userError "aegis256 roundtrip mismatch"
   | Except.error err => throw <| IO.userError s!"aegis256 decrypt failed: {err.code}"
+
+  -- ChaCha20 (IETF variant) stream cipher: symmetric xor, so a second
+  -- application restores the plaintext. Validates the FFI/ABI end-to-end.
+  let chachaKey := repeatByte 32 0x69
+  let chachaNonce := repeatByte 12 0x42
+  let rfcPlain := bytes "Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it."
+  let chachaCt ← chacha20Xor chachaKey chachaNonce 1 rfcPlain
+  assertEq "chacha20 ct len" chachaCt.size rfcPlain.size
+  let chachaBack ← chacha20Xor chachaKey chachaNonce 1 chachaCt
+  assertEq "chacha20 roundtrip" chachaBack rfcPlain
+
+  -- XChaCha20 (24-byte nonce variant) roundtrip
+  let xKey := repeatByte 32 0x05
+  let xNonce := repeatByte 24 0x07
+  let xCt ← xChaCha20Xor xKey xNonce 0 rfcPlain
+  assertEq "xchacha20 ct len" xCt.size rfcPlain.size
+  let xBack ← xChaCha20Xor xKey xNonce 0 xCt
+  assertEq "xchacha20 roundtrip" xBack rfcPlain
+
+  -- Original ChaCha20 variant (8-byte nonce) cross-checked against an
+  -- independently generated vector (Python `cryptography` ChaCha20).
+  let mut legKey := ByteArray.empty
+  for i in [0:32] do
+    legKey := legKey.push (UInt8.ofNat i)
+  let legNonce := ByteArray.empty
+    |>.push 0x07 |>.push 0x06 |>.push 0x05 |>.push 0x04
+    |>.push 0x03 |>.push 0x02 |>.push 0x01 |>.push 0x00
+  let legPt := bytes "The quick brown fox jumps over the lazy dog."
+  let legCt ← chacha20LegacyXor legKey legNonce 0 legPt
+  expectHex "chacha20 legacy vector" legCt
+    "4a14a89a88e3da973615140818636e86a6a1df9b74a72e8c21faf11e37641163f5bf76848f2e0898715a50ee"
 
 end CryptoExtendedTest
 
