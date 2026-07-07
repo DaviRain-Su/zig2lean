@@ -4,18 +4,20 @@ namespace UuidTest
 
 open ZigLean.Uuid
 
-instance : GetElem String Nat Char (fun _ _ => True) where
-  getElem s i _ := s.toList.getD i '\u0000'
-
 def assertEq [BEq α] [ToString α] (name : String) (actual expected : α) : IO Unit := do
   if actual != expected then
     throw <| IO.userError s!"{name}: expected {expected}, got {actual}"
 
+def isHexDigit (c : Char) : Bool :=
+  (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
+
 def isValidUuid4 (s : String) : Bool :=
+  let chars := s.toList
   s.length == 36 &&
-  s[8] == '-' && s[13] == '-' && s[18] == '-' && s[23] == '-' &&
-  s[14] == '4' &&
-  (s[19] == '8' || s[19] == '9' || s[19] == 'a' || s[19] == 'b')
+  chars.getD 8 '\u0000' == '-' && chars.getD 13 '\u0000' == '-' && chars.getD 18 '\u0000' == '-' && chars.getD 23 '\u0000' == '-' &&
+  chars.getD 14 '\u0000' == '4' &&
+  (chars.getD 19 '\u0000' == '8' || chars.getD 19 '\u0000' == '9' || chars.getD 19 '\u0000' == 'a' || chars.getD 19 '\u0000' == 'b') &&
+  chars.all (fun c => c == '-' || isHexDigit c)
 
 def main : IO Unit := do
   let u1 ← uuid4
