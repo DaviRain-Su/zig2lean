@@ -174,6 +174,13 @@ def main : IO Unit := do
   | Except.ok out => if out != plain then throw <| IO.userError "aes256gcm-siv roundtrip mismatch"
   | Except.error err => throw <| IO.userError s!"aes256gcm-siv decrypt failed: {err.code}"
 
+  let aegisNonce := repeatByte 32 0x42
+  let aegisEnc ← aegis256Encrypt key aegisNonce ByteArray.empty plain
+  assertEq "aegis256 enc len" aegisEnc.size (plain.size + 16)
+  match ← aegis256Decrypt key aegisNonce ByteArray.empty aegisEnc with
+  | Except.ok out => if out != plain then throw <| IO.userError "aegis256 roundtrip mismatch"
+  | Except.error err => throw <| IO.userError s!"aegis256 decrypt failed: {err.code}"
+
 end CryptoExtendedTest
 
 def main : IO Unit :=
