@@ -22,6 +22,20 @@ lean_obj_res lean_ziglean_hash_crc32(b_lean_obj_arg input, lean_obj_arg world) {
   return lean_io_result_mk_ok(lean_box_uint32(crc));
 }
 
+lean_obj_res lean_ziglean_hash_adler32(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  uint32_t adler = 0;
+  uint32_t status = ziglean_hash_adler32(
+    lean_sarray_cptr((lean_object*)input),
+    (uint64_t)lean_sarray_size(input),
+    &adler
+  );
+  if (status != 0) {
+    return mk_checksum_error("adler32 failed");
+  }
+  return lean_io_result_mk_ok(lean_box_uint32(adler));
+}
+
 lean_obj_res lean_ziglean_hash_xxhash64(uint64_t seed, b_lean_obj_arg input, lean_obj_arg world) {
   (void)world;
   uint64_t hash = 0;

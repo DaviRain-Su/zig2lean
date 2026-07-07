@@ -10,6 +10,11 @@ export fn ziglean_hash_crc32(input: [*]const u8, input_len: u64, out_crc: *u32) 
     return 0;
 }
 
+export fn ziglean_hash_adler32(input: [*]const u8, input_len: u64, out_adler: *u32) u32 {
+    out_adler.* = std.hash.Adler32.hash(input[0..@intCast(input_len)]);
+    return 0;
+}
+
 export fn ziglean_hash_xxhash64(seed: u64, input: [*]const u8, input_len: u64, out_hash: *u64) u32 {
     out_hash.* = std.hash.XxHash64.hash(seed, input[0..@intCast(input_len)]);
     return 0;
