@@ -12,6 +12,12 @@ opaque sha256Raw : @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_blake3"]
 opaque blake3Raw : @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_md5"]
+opaque md5Raw : @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_blake3_keyed"]
+opaque blake3KeyedRaw : @& ByteArray -> @& ByteArray -> IO ByteArray
+
 @[extern "lean_ziglean_crypto_blake2b256"]
 opaque blake2b256Raw : @& ByteArray -> IO ByteArray
 

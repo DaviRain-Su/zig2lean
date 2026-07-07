@@ -64,6 +64,33 @@ lean_obj_res lean_ziglean_crypto_blake3(b_lean_obj_arg input, lean_obj_arg world
   return lean_io_result_mk_ok(out);
 }
 
+lean_obj_res lean_ziglean_crypto_md5(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_MD5_LEN);
+  uint32_t status = ziglean_crypto_md5(input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig md5 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
+lean_obj_res lean_ziglean_crypto_blake3_keyed(b_lean_obj_arg key, b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  size_t input_len = lean_sarray_size(input);
+  const uint8_t* input_bytes = lean_sarray_cptr((lean_object*)input);
+  const uint8_t* key_bytes = lean_sarray_cptr((lean_object*)key);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_BLAKE3_LEN);
+  uint32_t status = ziglean_crypto_blake3_keyed(key_bytes, input_bytes, (uint64_t)input_len, lean_sarray_cptr(out));
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig blake3_keyed failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
 lean_obj_res lean_ziglean_crypto_blake2b256(b_lean_obj_arg input, lean_obj_arg world) {
   (void)world;
   size_t input_len = lean_sarray_size(input);

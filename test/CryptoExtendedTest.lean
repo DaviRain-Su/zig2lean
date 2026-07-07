@@ -301,6 +301,16 @@ def main : IO Unit := do
   let eqDiff ← timingSafeEq diff sameLen
   if eqDiff then throw <| IO.userError "timingSafeEq should report not equal"
 
+  -- Hash: MD5 (legacy) and keyed BLAKE3.
+  let md5Pt := bytes "The quick brown fox jumps over the lazy dog."
+  let md5Out ← md5 md5Pt
+  expectHex "md5 vector" md5Out "e4d909c290d0fb1ca068ffaddf22cbd0"
+
+  let b3Key := bytes "whats the Elvish word for friend"
+  let b3Keyed ← blake3Keyed b3Key ByteArray.empty
+  expectHex "blake3 keyed (empty input)" b3Keyed
+    "92b2b75604ed3c761f9d6f62392c8a9227ad0ea3f09573e783f1498a4ed60d26"
+
 end CryptoExtendedTest
 
 def main : IO Unit :=

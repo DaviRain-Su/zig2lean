@@ -28,6 +28,26 @@ export fn ziglean_crypto_blake3(input: [*]const u8, input_len: u64, out_digest: 
     return 0;
 }
 
+export fn ziglean_crypto_md5(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out: *[16]u8 = @ptrCast(out_digest);
+    std.crypto.hash.Md5.hash(bytes, out, .{});
+    return 0;
+}
+
+export fn ziglean_crypto_blake3_keyed(
+    key: [*]const u8,
+    input: [*]const u8,
+    input_len: u64,
+    out_digest: [*]u8,
+) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out = out_digest[0..32];
+    const k: [32]u8 = key[0..32].*;
+    std.crypto.hash.Blake3.hash(bytes, out, .{ .key = k });
+    return 0;
+}
+
 export fn ziglean_crypto_blake2b256(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
     const bytes = input[0..@intCast(input_len)];
     const out = out_digest[0..32];

@@ -15,6 +15,13 @@ def sha256 (input : ByteArray) : IO ByteArray :=
 def blake3 (input : ByteArray) : IO ByteArray :=
   FFI.blake3Raw input
 
+def md5 (input : ByteArray) : IO ByteArray :=
+  FFI.md5Raw input
+
+/-- Keyed BLAKE3 (MAC mode) with a 32-byte key. -/
+def blake3Keyed (key input : ByteArray) : IO ByteArray :=
+  FFI.blake3KeyedRaw key input
+
 def blake2b256 (input : ByteArray) : IO ByteArray :=
   FFI.blake2b256Raw input
 
