@@ -76,6 +76,7 @@ extern_lib liblean_ziglean pkg := do
   let outDir := pkg.buildDir / "native"
   let libFile := outDir / "lib" / libName
   let rootSrcJob ← inputFile (pkg.dir / "native" / "src" / "root.zig") true
+  let randomSrcJob ← inputFile (pkg.dir / "native" / "src" / "random.zig") true
   let jsonSrcJob ← inputFile (pkg.dir / "native" / "src" / "json.zig") true
   let jsonStreamSrcJob ← inputFile (pkg.dir / "native" / "src" / "json_stream.zig") true
   let cryptoSrcJob ← inputFile (pkg.dir / "native" / "src" / "crypto_hash.zig") true
@@ -87,6 +88,7 @@ extern_lib liblean_ziglean pkg := do
   let leb128SrcJob ← inputFile (pkg.dir / "native" / "src" / "leb128.zig") true
   let codecSrcJob ← inputFile (pkg.dir / "native" / "src" / "codec.zig") true
   let compressSrcJob ← inputFile (pkg.dir / "native" / "src" / "compress.zig") true
+  let randomCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_random.c") true
   let cSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json.c") true
   let jsonStreamCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_json_stream.c") true
   let cryptoCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_crypto_hash.c") true
@@ -98,6 +100,7 @@ extern_lib liblean_ziglean pkg := do
   let leb128CSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_leb128.c") true
   let codecCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_codec.c") true
   let compressCSrcJob ← inputFile (pkg.dir / "native" / "c" / "lean_compress.c") true
+  let randomHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_random.h") true
   let hdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json.h") true
   let jsonStreamHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_json_stream.h") true
   let cryptoHdrJob ← inputFile (pkg.dir / "native" / "include" / "ziglean_crypto_hash.h") true
@@ -113,38 +116,41 @@ extern_lib liblean_ziglean pkg := do
   let depJob :=
     buildJob.mix <|
       rootSrcJob.mix <|
-        jsonSrcJob.mix <|
-          jsonStreamSrcJob.mix <|
-            cryptoSrcJob.mix <|
-            cryptoStreamSrcJob.mix <|
-              kdfSrcJob.mix <|
-              signSrcJob.mix <|
-                aeadSrcJob.mix <|
-                  checksumSrcJob.mix <|
-                    leb128SrcJob.mix <|
-                      codecSrcJob.mix <|
-                        compressSrcJob.mix <|
-                          cSrcJob.mix <|
-                            jsonStreamCSrcJob.mix <|
-                              cryptoCSrcJob.mix <|
-                              cryptoStreamCSrcJob.mix <|
-                                kdfCSrcJob.mix <|
-                                signCSrcJob.mix <|
-                                  aeadCSrcJob.mix <|
-                                    checksumCSrcJob.mix <|
-                                      leb128CSrcJob.mix <|
-                                        codecCSrcJob.mix <|
-                                          compressCSrcJob.mix <|
-                                            hdrJob.mix <|
-                                              jsonStreamHdrJob.mix <|
-                                                cryptoHdrJob.mix <|
-                                                cryptoStreamHdrJob.mix <|
-                                                  kdfHdrJob.mix <|
-                                                  signHdrJob.mix <|
-                                                    aeadHdrJob.mix <|
-                                                      checksumHdrJob.mix <|
-                                                        leb128HdrJob.mix <|
-                                                          codecHdrJob.mix compressHdrJob
+        randomSrcJob.mix <|
+          jsonSrcJob.mix <|
+            jsonStreamSrcJob.mix <|
+              cryptoSrcJob.mix <|
+              cryptoStreamSrcJob.mix <|
+                kdfSrcJob.mix <|
+                signSrcJob.mix <|
+                  aeadSrcJob.mix <|
+                    checksumSrcJob.mix <|
+                      leb128SrcJob.mix <|
+                        codecSrcJob.mix <|
+                          compressSrcJob.mix <|
+                            randomCSrcJob.mix <|
+                              cSrcJob.mix <|
+                                jsonStreamCSrcJob.mix <|
+                                  cryptoCSrcJob.mix <|
+                                  cryptoStreamCSrcJob.mix <|
+                                    kdfCSrcJob.mix <|
+                                    signCSrcJob.mix <|
+                                      aeadCSrcJob.mix <|
+                                        checksumCSrcJob.mix <|
+                                          leb128CSrcJob.mix <|
+                                            codecCSrcJob.mix <|
+                                              compressCSrcJob.mix <|
+                                                randomHdrJob.mix <|
+                                                  hdrJob.mix <|
+                                                    jsonStreamHdrJob.mix <|
+                                                      cryptoHdrJob.mix <|
+                                                      cryptoStreamHdrJob.mix <|
+                                                        kdfHdrJob.mix <|
+                                                        signHdrJob.mix <|
+                                                          aeadHdrJob.mix <|
+                                                            checksumHdrJob.mix <|
+                                                              leb128HdrJob.mix <|
+                                                                codecHdrJob.mix compressHdrJob
   buildFileAfterDep libFile depJob fun _ => do
     IO.FS.createDirAll libFile.parent.get!
     let leanPrefixOut ← IO.Process.output {

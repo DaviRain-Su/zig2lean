@@ -19,6 +19,10 @@ pub fn build(b: *std.Build) void {
     lib.root_module.addIncludePath(b.path("include"));
     lib.root_module.addIncludePath(.{ .cwd_relative = b.fmt("{s}/include", .{lean_prefix}) });
     lib.root_module.addCSourceFile(.{
+        .file = b.path("c/lean_random.c"),
+        .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
+    });
+    lib.root_module.addCSourceFile(.{
         .file = b.path("c/lean_json.c"),
         .flags = &.{ "-std=c11", "-fno-sanitize=undefined" },
     });

@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const c = @cImport({
     @cInclude("ziglean_random.h");
 });
@@ -17,10 +18,28 @@ fn setSuccess(out: *c.ZigLeanRandomResult, buf: []u8) u32 {
     return STATUS_OK;
 }
 
+fn fillRandom(buf: []u8) void {
+    if (buf.len == 0) return;
+    switch (builtin.os.tag) {
+        .linux => {
+            var pos: usize = 0;
+            while (pos < buf.len) {
+                const n = std.c.getrandom(buf.ptr + pos, buf.len - pos, 0);
+                if (n < 0) @panic("getrandom failed");
+                pos += @intCast(n);
+            }
+        },
+        .macos, .ios, .tvos, .watchos, .visionos, .freebsd, .netbsd, .openbsd, .dragonfly => {
+            std.c.arc4random_buf(buf.ptr, buf.len);
+        },
+        else => @compileError("unsupported OS for secure random bytes"),
+    }
+}
+
 export fn ziglean_random_bytes(len: u64, out_result: *c.ZigLeanRandomResult) u32 {
     const size: usize = @intCast(len);
     const out = std.heap.c_allocator.alloc(u8, size) catch return setError(out_result, STATUS_ALLOC);
-    std.crypto.random.bytes(out);
+    fillRandom(out);
     return setSuccess(out_result, out);
 }
 
