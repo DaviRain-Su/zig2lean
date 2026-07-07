@@ -170,10 +170,20 @@ def main : IO Unit := do
   expectHex "blake2b512 empty" b2_512_empty
     "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"
 
+  let mac224 ← hmacSha224 hmacKey (bytes "Hi There")
+  assertEq "hmac sha224 length" mac224.size 28
+  expectHex "hmac sha224 rfc4231 case 1" mac224
+    "896fb1128abbdf196832107cd49df33f47b4b1169912ba4f53684b22"
+
   let mac ← hmacSha256 hmacKey (bytes "Hi There")
   assertEq "hmac sha256 length" mac.size 32
   expectHex "hmac sha256 rfc4231 case 1" mac
     "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+
+  let mac384 ← hmacSha384 hmacKey (bytes "Hi There")
+  assertEq "hmac sha384 length" mac384.size 48
+  expectHex "hmac sha384 rfc4231 case 1" mac384
+    "afd03944d84895626b0825f4ab46907f15f9dadbe4101ec682aa034c7cebc59cfaea9ea9076ede7f4af152e8b2fa9cb6"
 
   let mac512 ← hmacSha512 hmacKey (bytes "Hi There")
   assertEq "hmac sha512 length" mac512.size 64
