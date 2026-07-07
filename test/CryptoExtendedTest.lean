@@ -6,6 +6,7 @@ open ZigLean.Crypto.Hash
 open ZigLean.Crypto.Kdf
 open ZigLean.Crypto.Sign
 open ZigLean.Crypto.Aead
+open ZigLean.Crypto.Dh
 open ZigLean.Hash.Checksum
 open ZigLean.Leb128
 
@@ -102,6 +103,21 @@ def main : IO Unit := do
   let p256ValidWrong ← p256Verify p256PubWrong msg p256sig
   if p256ValidWrong then
     throw <| IO.userError "p256 verify should fail with wrong key"
+
+  let seedA := repeatByte 32 0x01
+  let seedB := repeatByte 32 0x02
+  let kpA ← x25519Keypair seedA
+  let kpB ← x25519Keypair seedB
+  assertEq "x25519 keypair len" kpA.size 64
+  let skA := kpA.extract 0 32
+  let pkA := kpA.extract 32 64
+  let skB := kpB.extract 0 32
+  let pkB := kpB.extract 32 64
+  let sharedA ← x25519SharedSecret skA pkB
+  let sharedB ← x25519SharedSecret skB pkA
+  assertEq "x25519 shared secret len" sharedA.size 32
+  if sharedA != sharedB then
+    throw <| IO.userError "x25519 shared secrets do not match"
 
   let crc ← crc32 (bytes "123456789")
   assertEq "crc32" crc 0xcbf43926
