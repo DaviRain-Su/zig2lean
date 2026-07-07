@@ -63,6 +63,31 @@ lean_obj_res lean_ziglean_crypto_hmac_sha256(
   return lean_io_result_mk_ok(out);
 }
 
+lean_obj_res lean_ziglean_crypto_hmac_sha512(
+  b_lean_obj_arg key,
+  b_lean_obj_arg message,
+  lean_obj_arg world
+) {
+  (void)world;
+  size_t key_len = lean_sarray_size(key);
+  size_t message_len = lean_sarray_size(message);
+  const uint8_t* key_bytes = lean_sarray_cptr((lean_object*)key);
+  const uint8_t* message_bytes = lean_sarray_cptr((lean_object*)message);
+  lean_object* out = mk_digest_result(ZIGLEAN_CRYPTO_HMAC_SHA512_LEN);
+  uint32_t status = ziglean_crypto_hmac_sha512(
+    key_bytes,
+    (uint64_t)key_len,
+    message_bytes,
+    (uint64_t)message_len,
+    lean_sarray_cptr(out)
+  );
+  if (status != 0) {
+    lean_dec(out);
+    return mk_crypto_error("zig hmac sha512 failed");
+  }
+  return lean_io_result_mk_ok(out);
+}
+
 lean_obj_res lean_ziglean_crypto_sha512(b_lean_obj_arg input, lean_obj_arg world) {
   (void)world;
   size_t input_len = lean_sarray_size(input);

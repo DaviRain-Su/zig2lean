@@ -12,6 +12,9 @@ def blake3 (input : ByteArray) : IO ByteArray :=
 def hmacSha256 (key message : ByteArray) : IO ByteArray :=
   FFI.hmacSha256Raw key message
 
+def hmacSha512 (key message : ByteArray) : IO ByteArray :=
+  FFI.hmacSha512Raw key message
+
 def sha512 (input : ByteArray) : IO ByteArray :=
   FFI.sha512Raw input
 
