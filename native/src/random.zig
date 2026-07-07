@@ -26,7 +26,12 @@ pub fn fillRandom(buf: []u8) u32 {
             var pos: usize = 0;
             while (pos < buf.len) {
                 const n = std.c.getrandom(buf.ptr + pos, buf.len - pos, 0);
-                if (n <= 0) return STATUS_RANDOM;
+                if (n < 0) {
+                    const errno = std.c.getErrno();
+                    if (errno == .INTR) continue;
+                    return STATUS_RANDOM;
+                }
+                if (n == 0) return STATUS_RANDOM;
                 pos += @intCast(n);
             }
             return STATUS_OK;
