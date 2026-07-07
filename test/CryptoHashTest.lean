@@ -65,6 +65,16 @@ def hmacKey : ByteArray :=
   loop 0 ByteArray.empty
 
 def main : IO Unit := do
+  let sha1Empty ← sha1 ByteArray.empty
+  assertEq "sha1 empty length" sha1Empty.size 20
+  expectHex "sha1 empty" sha1Empty
+    "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+
+  let sha1Abc ← sha1 (bytes "abc")
+  assertEq "sha1 abc length" sha1Abc.size 20
+  expectHex "sha1 abc" sha1Abc
+    "a9993e364706816aba3e25717850c26c9cd0d89d"
+
   let sha224Empty ← sha224 ByteArray.empty
   assertEq "sha224 empty length" sha224Empty.size 28
   expectHex "sha224 empty" sha224Empty
