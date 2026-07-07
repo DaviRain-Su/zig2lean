@@ -13,6 +13,7 @@ uint32_t ziglean_hash_crc64ecma(const uint8_t* input, uint64_t input_len, uint64
 uint32_t ziglean_hash_adler32(const uint8_t* input, uint64_t input_len, uint32_t* out_adler);
 uint32_t ziglean_hash_xxhash64(uint64_t seed, const uint8_t* input, uint64_t input_len, uint64_t* out_hash);
 uint32_t ziglean_hash_fnv1a64(const uint8_t* input, uint64_t input_len, uint64_t* out_hash);
+uint32_t ziglean_hash_cityhash64(const uint8_t* input, uint64_t input_len, uint64_t* out_hash);
 
 #ifdef __cplusplus
 }

@@ -38,3 +38,8 @@ export fn ziglean_hash_crc64ecma(input: [*]const u8, input_len: u64, out_crc: *u
     out_crc.* = crc.final();
     return 0;
 }
+
+export fn ziglean_hash_cityhash64(input: [*]const u8, input_len: u64, out_hash: *u64) u32 {
+    out_hash.* = std.hash.CityHash64.hash(input[0..@intCast(input_len)]);
+    return 0;
+}

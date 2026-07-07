@@ -20,4 +20,7 @@ def xxHash64 (seed : UInt64) (input : ByteArray) : IO UInt64 :=
 def fnv1a64 (input : ByteArray) : IO UInt64 :=
   FFI.fnv1a64Raw input
 
+def cityhash64 (input : ByteArray) : IO UInt64 :=
+  FFI.cityhash64Raw input
+
 end ZigLean.Hash.Checksum

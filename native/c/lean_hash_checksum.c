@@ -92,3 +92,17 @@ lean_obj_res lean_ziglean_hash_crc64ecma(b_lean_obj_arg input, lean_obj_arg worl
   }
   return lean_io_result_mk_ok(lean_box_uint64(crc));
 }
+
+lean_obj_res lean_ziglean_hash_cityhash64(b_lean_obj_arg input, lean_obj_arg world) {
+  (void)world;
+  uint64_t hash = 0;
+  uint32_t status = ziglean_hash_cityhash64(
+    lean_sarray_cptr((lean_object*)input),
+    (uint64_t)lean_sarray_size(input),
+    &hash
+  );
+  if (status != 0) {
+    return mk_checksum_error("cityhash64 failed");
+  }
+  return lean_io_result_mk_ok(lean_box_uint64(hash));
+}
