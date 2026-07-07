@@ -95,6 +95,16 @@ def main : IO Unit := do
   expectHex "blake2b256 abc" b2Abc
     "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319"
 
+  let b2sEmpty ← blake2s256 ByteArray.empty
+  assertEq "blake2s256 empty length" b2sEmpty.size 32
+  expectHex "blake2s256 empty" b2sEmpty
+    "69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9"
+
+  let b2sAbc ← blake2s256 (bytes "abc")
+  assertEq "blake2s256 abc length" b2sAbc.size 32
+  expectHex "blake2s256 abc" b2sAbc
+    "508c5e8c327c14e2e1a72ba34eeb452f37458b209ed63a294d999b4c86675982"
+
   let b2_512_empty ← blake2b512 ByteArray.empty
   assertEq "blake2b512 empty length" b2_512_empty.size 64
   expectHex "blake2b512 empty" b2_512_empty
