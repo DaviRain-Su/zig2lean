@@ -1,5 +1,7 @@
 import ZigLean
 
+set_option maxRecDepth 200000
+
 namespace CryptoExtendedTest
 
 open ZigLean.Crypto.Hash
@@ -235,6 +237,46 @@ def main : IO Unit := do
     "4846f83aa211e239aa62a21f527f089ee9ddbead30ee15d4e79b607a621b97be33780183ae2b67b6979e33e391df7c127855ed7a01444a1d5184411d9ae9841d"
   let cbcBack ← aes256CbcDecrypt aesKey aesIv cbcCt
   assertEq "aes256 cbc roundtrip" cbcBack aesPt
+
+  -- AES-256-OCB, cross-checked against PyCryptodome (RFC 7253 vector).
+  let mut ocKey := ByteArray.empty
+  for i in [0:32] do
+    ocKey := ocKey.push (UInt8.ofNat i)
+  let mut ocNonce := ByteArray.empty
+  for i in [0:12] do
+    ocNonce := ocNonce.push (UInt8.ofNat i)
+  let ocAad := bytes "header-data"
+  let ocPt := bytes "The quick brown fox jumps over the lazy dog. OCB test."
+  let ocCt ← aes256OcbEncrypt ocKey ocNonce ocAad ocPt
+  expectHex "aes256ocb vector" ocCt
+    "c5f4ebecf0290cefec9998cb2ee5492962d294cce15db3b4427ea5cacdb70d715d9b8ce7c59c3cf19bbdd51778ee7f5f852f612916d4aeeba8d970f0da2b0468614a683b6f93"
+  match ← aes256OcbDecrypt ocKey ocNonce ocAad ocCt with
+  | Except.ok out => if out != ocPt then throw <| IO.userError "aes256ocb roundtrip mismatch"
+  | Except.error err => throw <| IO.userError s!"aes256ocb decrypt failed: {err.code}"
+  -- tamper detection
+  let mut ocTampered := ocCt
+  let ocFlip := UInt8.ofNat (ocTampered[0]!.toNat ^^^ 0xff)
+  ocTampered := ocTampered.set! 0 ocFlip
+  match ← aes256OcbDecrypt ocKey ocNonce ocAad ocTampered with
+  | Except.ok _ => throw <| IO.userError "aes256ocb should have rejected tampered ct"
+  | Except.error _ => pure ()
+
+  -- AES-256-SIV (RFC 5297), roundtrip + tamper detection.
+  let mut sivKey := ByteArray.empty
+  for i in [0:64] do
+    sivKey := sivKey.push (UInt8.ofNat i)
+  let sivAad := bytes "siv-associated-data"
+  let sivPt := bytes "Deterministic authenticated encryption with SIV."
+  let sivCt ← aes256SivEncrypt sivKey ByteArray.empty sivAad sivPt
+  match ← aes256SivDecrypt sivKey ByteArray.empty sivAad sivCt with
+  | Except.ok out => if out != sivPt then throw <| IO.userError "aes256siv roundtrip mismatch"
+  | Except.error err => throw <| IO.userError s!"aes256siv decrypt failed: {err.code}"
+  let mut sivTampered := sivCt
+  let sivFlip := UInt8.ofNat (sivTampered[0]!.toNat ^^^ 0xff)
+  sivTampered := sivTampered.set! 0 sivFlip
+  match ← aes256SivDecrypt sivKey ByteArray.empty sivAad sivTampered with
+  | Except.ok _ => throw <| IO.userError "aes256siv should have rejected tampered ct"
+  | Except.error _ => pure ()
 
 end CryptoExtendedTest
 

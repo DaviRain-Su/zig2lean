@@ -24,4 +24,16 @@ opaque chacha20Poly1305EncryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray
 @[extern "lean_ziglean_crypto_chacha20poly1305_decrypt"]
 opaque chacha20Poly1305DecryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_aes256ocb_encrypt"]
+opaque aes256OcbEncryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_aes256ocb_decrypt"]
+opaque aes256OcbDecryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_aes256siv_encrypt"]
+opaque aes256SivEncryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
+
+@[extern "lean_ziglean_crypto_aes256siv_decrypt"]
+opaque aes256SivDecryptRaw : @& ByteArray -> @& ByteArray -> @& ByteArray -> @& ByteArray -> IO ByteArray
+
 end ZigLean.Crypto.Aead.FFI

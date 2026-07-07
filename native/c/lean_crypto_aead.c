@@ -101,3 +101,49 @@ DEFINE_AEAD_ENCRYPT(lean_ziglean_crypto_aegis256_encrypt, ziglean_crypto_aegis25
 DEFINE_AEAD_DECRYPT(lean_ziglean_crypto_aegis256_decrypt, ziglean_crypto_aegis256_decrypt)
 DEFINE_AEAD_ENCRYPT(lean_ziglean_crypto_chacha20poly1305_encrypt, ziglean_crypto_chacha20poly1305_encrypt, "chacha20poly1305 encrypt failed")
 DEFINE_AEAD_DECRYPT(lean_ziglean_crypto_chacha20poly1305_decrypt, ziglean_crypto_chacha20poly1305_decrypt)
+DEFINE_AEAD_ENCRYPT(lean_ziglean_crypto_aes256ocb_encrypt, ziglean_crypto_aes256ocb_encrypt, "aes256ocb encrypt failed")
+DEFINE_AEAD_DECRYPT(lean_ziglean_crypto_aes256ocb_decrypt, ziglean_crypto_aes256ocb_decrypt)
+
+static lean_obj_res siv_encrypt_shim(
+  b_lean_obj_arg key, b_lean_obj_arg nonce, b_lean_obj_arg aad, b_lean_obj_arg plaintext, lean_obj_arg world
+) {
+  (void)world;
+  ZigLeanAeadResult result = {0, 0, 0, 0, 0};
+  (void)ziglean_crypto_aes256siv_encrypt(
+    lean_sarray_cptr((lean_object*)key),
+    lean_sarray_cptr((lean_object*)nonce),
+    (uint64_t)lean_sarray_size(nonce),
+    lean_sarray_cptr((lean_object*)aad),
+    (uint64_t)lean_sarray_size(aad),
+    lean_sarray_cptr((lean_object*)plaintext),
+    (uint64_t)lean_sarray_size(plaintext),
+    &result
+  );
+  return copy_encrypt_output(&result, "aes256siv encrypt failed");
+}
+
+static lean_obj_res siv_decrypt_shim(
+  b_lean_obj_arg key, b_lean_obj_arg nonce, b_lean_obj_arg aad, b_lean_obj_arg ciphertext_and_tag, lean_obj_arg world
+) {
+  (void)world;
+  ZigLeanAeadResult result = {0, 0, 0, 0, 0};
+  (void)ziglean_crypto_aes256siv_decrypt(
+    lean_sarray_cptr((lean_object*)key),
+    lean_sarray_cptr((lean_object*)nonce),
+    (uint64_t)lean_sarray_size(nonce),
+    lean_sarray_cptr((lean_object*)aad),
+    (uint64_t)lean_sarray_size(aad),
+    lean_sarray_cptr((lean_object*)ciphertext_and_tag),
+    (uint64_t)lean_sarray_size(ciphertext_and_tag),
+    &result
+  );
+  return copy_decrypt_result(&result);
+}
+
+lean_obj_res lean_ziglean_crypto_aes256siv_encrypt(b_lean_obj_arg key, b_lean_obj_arg nonce, b_lean_obj_arg aad, b_lean_obj_arg plaintext, lean_obj_arg world) {
+  return siv_encrypt_shim(key, nonce, aad, plaintext, world);
+}
+
+lean_obj_res lean_ziglean_crypto_aes256siv_decrypt(b_lean_obj_arg key, b_lean_obj_arg nonce, b_lean_obj_arg aad, b_lean_obj_arg ciphertext_and_tag, lean_obj_arg world) {
+  return siv_decrypt_shim(key, nonce, aad, ciphertext_and_tag, world);
+}

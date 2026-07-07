@@ -108,6 +108,48 @@ uint32_t ziglean_crypto_chacha20poly1305_decrypt(
   ZigLeanAeadResult* out_result
 );
 
+uint32_t ziglean_crypto_aes256ocb_encrypt(
+  const uint8_t* key,
+  const uint8_t* nonce,
+  const uint8_t* aad,
+  uint64_t aad_len,
+  const uint8_t* plaintext,
+  uint64_t plaintext_len,
+  ZigLeanAeadResult* out_result
+);
+
+uint32_t ziglean_crypto_aes256ocb_decrypt(
+  const uint8_t* key,
+  const uint8_t* nonce,
+  const uint8_t* aad,
+  uint64_t aad_len,
+  const uint8_t* ciphertext_and_tag,
+  uint64_t ciphertext_and_tag_len,
+  ZigLeanAeadResult* out_result
+);
+
+uint32_t ziglean_crypto_aes256siv_encrypt(
+  const uint8_t* key,
+  const uint8_t* nonce,
+  uint64_t nonce_len,
+  const uint8_t* aad,
+  uint64_t aad_len,
+  const uint8_t* plaintext,
+  uint64_t plaintext_len,
+  ZigLeanAeadResult* out_result
+);
+
+uint32_t ziglean_crypto_aes256siv_decrypt(
+  const uint8_t* key,
+  const uint8_t* nonce,
+  uint64_t nonce_len,
+  const uint8_t* aad,
+  uint64_t aad_len,
+  const uint8_t* ciphertext_and_tag,
+  uint64_t ciphertext_and_tag_len,
+  ZigLeanAeadResult* out_result
+);
+
 void ziglean_crypto_aead_free(uint8_t* ptr, uint64_t len);
 
 #ifdef __cplusplus

@@ -60,4 +60,16 @@ def chacha20Poly1305Encrypt (key nonce aad plaintext : ByteArray) : IO ByteArray
 def chacha20Poly1305Decrypt (key nonce aad ciphertextAndTag : ByteArray) : IO (Except AeadError ByteArray) := do
   pure <| decodeRawResult (← FFI.chacha20Poly1305DecryptRaw key nonce aad ciphertextAndTag)
 
+def aes256OcbEncrypt (key nonce aad plaintext : ByteArray) : IO ByteArray :=
+  FFI.aes256OcbEncryptRaw key nonce aad plaintext
+
+def aes256OcbDecrypt (key nonce aad ciphertextAndTag : ByteArray) : IO (Except AeadError ByteArray) := do
+  pure <| decodeRawResult (← FFI.aes256OcbDecryptRaw key nonce aad ciphertextAndTag)
+
+def aes256SivEncrypt (key nonce aad plaintext : ByteArray) : IO ByteArray :=
+  FFI.aes256SivEncryptRaw key nonce aad plaintext
+
+def aes256SivDecrypt (key nonce aad ciphertextAndTag : ByteArray) : IO (Except AeadError ByteArray) := do
+  pure <| decodeRawResult (← FFI.aes256SivDecryptRaw key nonce aad ciphertextAndTag)
+
 end ZigLean.Crypto.Aead
