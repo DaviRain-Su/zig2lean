@@ -5,3 +5,4 @@ import ZigLean.Compress
 import ZigLean.Hash
 import ZigLean.Leb128
 import ZigLean.Random
+import ZigLean.Uuid
