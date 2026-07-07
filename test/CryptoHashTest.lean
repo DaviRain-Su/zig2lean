@@ -65,6 +65,16 @@ def hmacKey : ByteArray :=
   loop 0 ByteArray.empty
 
 def main : IO Unit := do
+  let sha224Empty ← sha224 ByteArray.empty
+  assertEq "sha224 empty length" sha224Empty.size 28
+  expectHex "sha224 empty" sha224Empty
+    "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f"
+
+  let sha224Abc ← sha224 (bytes "abc")
+  assertEq "sha224 abc length" sha224Abc.size 28
+  expectHex "sha224 abc" sha224Abc
+    "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7"
+
   let shaEmpty ← sha256 ByteArray.empty
   assertEq "sha256 empty length" shaEmpty.size 32
   expectHex "sha256 empty" shaEmpty
@@ -74,6 +84,16 @@ def main : IO Unit := do
   assertEq "sha256 abc length" shaAbc.size 32
   expectHex "sha256 abc" shaAbc
     "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+  let sha384Empty ← sha384 ByteArray.empty
+  assertEq "sha384 empty length" sha384Empty.size 48
+  expectHex "sha384 empty" sha384Empty
+    "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b"
+
+  let sha384Abc ← sha384 (bytes "abc")
+  assertEq "sha384 abc length" sha384Abc.size 48
+  expectHex "sha384 abc" sha384Abc
+    "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7"
 
   let blakeEmpty ← blake3 ByteArray.empty
   assertEq "blake3 empty length" blakeEmpty.size 32
