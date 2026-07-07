@@ -9,6 +9,9 @@ opaque blake3Raw : @& ByteArray -> IO ByteArray
 @[extern "lean_ziglean_crypto_blake2b256"]
 opaque blake2b256Raw : @& ByteArray -> IO ByteArray
 
+@[extern "lean_ziglean_crypto_blake2s256"]
+opaque blake2s256Raw : @& ByteArray -> IO ByteArray
+
 @[extern "lean_ziglean_crypto_blake2b512"]
 opaque blake2b512Raw : @& ByteArray -> IO ByteArray
 

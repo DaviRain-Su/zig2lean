@@ -12,6 +12,9 @@ def blake3 (input : ByteArray) : IO ByteArray :=
 def blake2b256 (input : ByteArray) : IO ByteArray :=
   FFI.blake2b256Raw input
 
+def blake2s256 (input : ByteArray) : IO ByteArray :=
+  FFI.blake2s256Raw input
+
 def blake2b512 (input : ByteArray) : IO ByteArray :=
   FFI.blake2b512Raw input
 

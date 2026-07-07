@@ -21,6 +21,13 @@ export fn ziglean_crypto_blake2b256(input: [*]const u8, input_len: u64, out_dige
     return 0;
 }
 
+export fn ziglean_crypto_blake2s256(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
+    const bytes = input[0..@intCast(input_len)];
+    const out = out_digest[0..32];
+    std.crypto.hash.blake2.Blake2s256.hash(bytes, out, .{});
+    return 0;
+}
+
 export fn ziglean_crypto_blake2b512(input: [*]const u8, input_len: u64, out_digest: [*]u8) u32 {
     const bytes = input[0..@intCast(input_len)];
     const out = out_digest[0..64];
