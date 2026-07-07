@@ -145,6 +145,24 @@ def main : IO Unit := do
   expectHex "keccak512 abc" keccak512Abc
     "18587dc2ea106b9a1563e32b3312421ca164c7f1f07bc922a9c83d77cea3a1e5d0c69910739025372dc14ac9642629379540c17e2a65b19d77aa511a9d00bb96"
 
+  let sipKey : ByteArray :=
+    let rec keyLoop (i : Nat) (acc : ByteArray) : ByteArray :=
+      if _h : i < 16 then
+        keyLoop (i + 1) (acc.push (UInt8.ofNat i))
+      else
+        acc
+    keyLoop 0 ByteArray.empty
+  let sipInput : ByteArray :=
+    let rec inputLoop (i : Nat) (acc : ByteArray) : ByteArray :=
+      if _h : i < 15 then
+        inputLoop (i + 1) (acc.push (UInt8.ofNat i))
+      else
+        acc
+    inputLoop 0 ByteArray.empty
+  let sip ← siphash64 sipKey sipInput
+  assertEq "siphash64 length" sip.size 8
+  expectHex "siphash64 sample" sip "e545be4961ca29a1"
+
   let blakeEmpty ← blake3 ByteArray.empty
   assertEq "blake3 empty length" blakeEmpty.size 32
   expectHex "blake3 empty" blakeEmpty
