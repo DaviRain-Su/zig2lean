@@ -85,6 +85,116 @@ export fn ziglean_codec_base64url_decode(input: [*]const u8, input_len: u64, out
     return decodeBase64(input[0..@intCast(input_len)], out_result, true);
 }
 
+const base32_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+const base32_map: [256]i8 = blk: {
+    var table: [256]i8 = @splat(-1);
+    for (base32_alphabet, 0..) |ch, idx| {
+        table[@intCast(ch)] = @intCast(idx);
+    }
+    break :blk table;
+};
+
+fn encodeBase32(input: []const u8, out_result: *c.ZigLeanCodecResult) u32 {
+    if (input.len == 0) return setSuccess(out_result, &[_]u8{});
+    const out_len = ((input.len + 4) / 5) * 8;
+    const out = allocBytes(out_len) catch return setError(out_result, STATUS_ALLOC);
+    const pad_counts = [_]u8{ 6, 4, 3, 1, 0 };
+    var in_idx: usize = 0;
+    var out_idx: usize = 0;
+    while (in_idx < input.len) {
+        var buf: [5]u8 = .{0} ** 5;
+        const chunk_len = @min(5, input.len - in_idx);
+        @memcpy(buf[0..chunk_len], input[in_idx .. in_idx + chunk_len]);
+        out[out_idx] = base32_alphabet[buf[0] >> 3];
+        out[out_idx + 1] = base32_alphabet[((buf[0] & 0x07) << 2) | (buf[1] >> 6)];
+        out[out_idx + 2] = base32_alphabet[(buf[1] & 0x3e) >> 1];
+        out[out_idx + 3] = base32_alphabet[((buf[1] & 0x01) << 4) | (buf[2] >> 4)];
+        out[out_idx + 4] = base32_alphabet[((buf[2] & 0x0f) << 1) | (buf[3] >> 7)];
+        out[out_idx + 5] = base32_alphabet[(buf[3] & 0x7c) >> 2];
+        out[out_idx + 6] = base32_alphabet[((buf[3] & 0x03) << 3) | (buf[4] >> 5)];
+        out[out_idx + 7] = base32_alphabet[buf[4] & 0x1f];
+        const pad_count = pad_counts[chunk_len - 1];
+        for (0..pad_count) |i| {
+            out[out_idx + 7 - i] = '=';
+        }
+        in_idx += chunk_len;
+        out_idx += 8;
+    }
+    return setSuccess(out_result, out);
+}
+
+fn decodeBase32(input: []const u8, out_result: *c.ZigLeanCodecResult) u32 {
+    if (input.len == 0) return setSuccess(out_result, &[_]u8{});
+    if (input.len % 8 != 0) return setError(out_result, STATUS_INVALID_DATA);
+    const max_out_len = (input.len / 8) * 5;
+    const out = allocBytes(max_out_len) catch return setError(out_result, STATUS_ALLOC);
+    var in_idx: usize = 0;
+    var out_idx: usize = 0;
+    var saw_padding = false;
+    while (in_idx < input.len) : (in_idx += 8) {
+        var vals: [8]u5 = undefined;
+        var valid_count: usize = 8;
+        for (input[in_idx .. in_idx + 8], 0..) |ch, i| {
+            if (saw_padding and ch != '=') {
+                std.heap.c_allocator.free(out);
+                return setDecodeError(out_result, @intCast(in_idx + i));
+            }
+            if (ch == '=') {
+                saw_padding = true;
+                valid_count = i;
+                for (i..8) |j| {
+                    if (input[in_idx + j] != '=') {
+                        std.heap.c_allocator.free(out);
+                        return setError(out_result, STATUS_INVALID_DATA);
+                    }
+                }
+                break;
+            }
+            const v = base32_map[@intCast(ch)];
+            if (v < 0) {
+                std.heap.c_allocator.free(out);
+                return setDecodeError(out_result, @intCast(in_idx + i));
+            }
+            vals[i] = @intCast(v);
+        }
+        const out_count: usize = switch (valid_count) {
+            8 => 5,
+            7 => 4,
+            5 => 3,
+            4 => 2,
+            2 => 1,
+            else => {
+                std.heap.c_allocator.free(out);
+                return setError(out_result, STATUS_INVALID_DATA);
+            },
+        };
+        var buf: [5]u8 = .{0} ** 5;
+        buf[0] = (@as(u8, vals[0]) << 3) | (@as(u8, vals[1]) >> 2);
+        if (out_count >= 2) buf[1] = (@as(u8, vals[1]) << 6) | (@as(u8, vals[2]) << 1) | (@as(u8, vals[3]) >> 4);
+        if (out_count >= 3) buf[2] = (@as(u8, vals[3]) << 4) | (@as(u8, vals[4]) >> 1);
+        if (out_count >= 4) buf[3] = (@as(u8, vals[4]) << 7) | (@as(u8, vals[5]) << 2) | (@as(u8, vals[6]) >> 3);
+        if (out_count >= 5) buf[4] = (@as(u8, vals[6]) << 5) | @as(u8, vals[7]);
+        @memcpy(out[out_idx .. out_idx + out_count], buf[0..out_count]);
+        out_idx += out_count;
+    }
+    const final_out = allocBytes(out_idx) catch {
+        std.heap.c_allocator.free(out);
+        return setError(out_result, STATUS_ALLOC);
+    };
+    @memcpy(final_out, out[0..out_idx]);
+    std.heap.c_allocator.free(out);
+    return setSuccess(out_result, final_out);
+}
+
+export fn ziglean_codec_base32_encode(input: [*]const u8, input_len: u64, out_result: *c.ZigLeanCodecResult) u32 {
+    return encodeBase32(input[0..@intCast(input_len)], out_result);
+}
+
+export fn ziglean_codec_base32_decode(input: [*]const u8, input_len: u64, out_result: *c.ZigLeanCodecResult) u32 {
+    return decodeBase32(input[0..@intCast(input_len)], out_result);
+}
+
 const base58_alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 const base58_map: [256]i8 = blk: {

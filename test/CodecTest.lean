@@ -68,6 +68,13 @@ def main : IO Unit := do
   expectDecodeError "base58 invalid char" (← base58Decode "2gI") 2 2
   expectDecodeError "base58 invalid zero char" (← base58Decode "20") 2 1
 
+  assertEq "base32 encode empty" (← base32Encode ByteArray.empty) ""
+  assertEq "base32 encode hello" (← base32Encode (bytes "hello")) "NBSWY3DP"
+  expectDecodeOk "base32 decode empty" (← base32Decode "") ByteArray.empty
+  expectDecodeOk "base32 decode hello" (← base32Decode "NBSWY3DP") (bytes "hello")
+  expectDecodeError "base32 invalid char" (← base32Decode "NBSWY3D!") 2 7
+  expectDecodeError "base32 invalid padding" (← base32Decode "NBSWY3D") 2 0
+
   for _ in [0:100] do
     assertEq "repeat hex encode" (← hexEncodeLower sampleBytes) "00ff10"
     expectDecodeOk "repeat base64 decode" (← base64Decode "aGVsbG8=") (bytes "hello")

@@ -60,4 +60,10 @@ def base58Encode (input : ByteArray) : IO String :=
 def base58Decode (input : String) : IO (Except CodecError ByteArray) := do
   pure <| decodeRawResult (← FFI.base58DecodeRaw input)
 
+def base32Encode (input : ByteArray) : IO String :=
+  FFI.base32EncodeRaw input
+
+def base32Decode (input : String) : IO (Except CodecError ByteArray) := do
+  pure <| decodeRawResult (← FFI.base32DecodeRaw input)
+
 end ZigLean.Codec

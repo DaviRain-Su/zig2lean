@@ -24,4 +24,10 @@ opaque base58EncodeRaw : @& ByteArray -> IO String
 @[extern "lean_ziglean_codec_base58_decode"]
 opaque base58DecodeRaw : @& String -> IO ByteArray
 
+@[extern "lean_ziglean_codec_base32_encode"]
+opaque base32EncodeRaw : @& ByteArray -> IO String
+
+@[extern "lean_ziglean_codec_base32_decode"]
+opaque base32DecodeRaw : @& String -> IO ByteArray
+
 end ZigLean.Codec.FFI
