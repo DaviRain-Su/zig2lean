@@ -19,7 +19,7 @@ fn setSuccess(out: *c.ZigLeanRandomResult, buf: []u8) u32 {
     return STATUS_OK;
 }
 
-fn fillRandom(buf: []u8) u32 {
+pub fn fillRandom(buf: []u8) u32 {
     if (buf.len == 0) return STATUS_OK;
     switch (builtin.os.tag) {
         .linux => {

@@ -1,5 +1,5 @@
 const std = @import("std");
-const builtin = @import("builtin");
+const random = @import("random.zig");
 const c = @cImport({
     @cInclude("ziglean_uuid.h");
 });
@@ -9,26 +9,6 @@ const STATUS_ALLOC: u32 = 1;
 const STATUS_RANDOM: u32 = 2;
 
 const UUID_LEN: usize = 36;
-
-fn fillRandom(buf: []u8) u32 {
-    if (buf.len == 0) return STATUS_OK;
-    switch (builtin.os.tag) {
-        .linux => {
-            var pos: usize = 0;
-            while (pos < buf.len) {
-                const n = std.c.getrandom(buf.ptr + pos, buf.len - pos, 0);
-                if (n <= 0) return STATUS_RANDOM;
-                pos += @intCast(n);
-            }
-            return STATUS_OK;
-        },
-        .macos, .ios, .tvos, .watchos, .visionos, .freebsd, .netbsd, .openbsd, .dragonfly => {
-            std.c.arc4random_buf(buf.ptr, buf.len);
-            return STATUS_OK;
-        },
-        else => @compileError("unsupported OS for secure random bytes"),
-    }
-}
 
 fn setError(out: *c.ZigLeanUuidResult, status: u32) u32 {
     out.* = .{ .status = status, .reserved = 0, .out_len = 0, .out = null };
@@ -46,7 +26,7 @@ fn hexChar(nibble: u4) u8 {
 
 export fn ziglean_uuid_v4(out_result: *c.ZigLeanUuidResult) u32 {
     var bytes: [16]u8 = undefined;
-    const status = fillRandom(&bytes);
+    const status = random.fillRandom(&bytes);
     if (status != STATUS_OK) return setError(out_result, status);
 
     bytes[6] = (bytes[6] & 0x0F) | 0x40;
