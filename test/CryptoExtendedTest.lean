@@ -114,6 +114,11 @@ def main : IO Unit := do
   assertEq "fnv1a64 empty" (← fnv1a64 ByteArray.empty) 0xcbf29ce484222325
   assertEq "fnv1a64 abc" (← fnv1a64 (bytes "abc")) 0xe71fa2190541574b
 
+  let crc64 ← crc64ecma (bytes "hello")
+  assertEq "crc64ecma hello" crc64 0x40544a306137b6ec
+  assertEq "crc64ecma empty" (← crc64ecma ByteArray.empty) 0x0000000000000000
+  assertEq "crc64ecma abc" (← crc64ecma (bytes "abc")) 0x66501a349a0e0855
+
   let encoded ← uleb128Encode 300
   assertEq "uleb128 300 bytes" encoded.size 2
   expectDecodeOk "uleb128 300 decode" (← uleb128Decode encoded) (· == 300)
