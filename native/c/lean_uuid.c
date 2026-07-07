@@ -14,7 +14,7 @@ lean_obj_res lean_ziglean_uuid_v4(lean_obj_arg world) {
   ZigLeanUuidResult result = {0, 0, 0, 0};
   uint32_t status = ziglean_uuid_v4(&result);
   if (status != 0) {
-    ziglean_uuid_free(result.out, result.out_len);
+    // Zig guarantees result.out is null on error; nothing to free.
     return mk_uuid_error("uuid v4 generation failed");
   }
   lean_object* out = lean_mk_string_from_bytes((const char*)result.out, (size_t)result.out_len);

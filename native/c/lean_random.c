@@ -14,7 +14,7 @@ lean_obj_res lean_ziglean_random_bytes(uint64_t len, lean_obj_arg world) {
   ZigLeanRandomResult result = {0, 0, 0, 0};
   uint32_t status = ziglean_random_bytes(len, &result);
   if (status != 0) {
-    ziglean_random_free(result.out, result.out_len);
+    // Zig guarantees result.out is null on error; nothing to free.
     return mk_random_error("random bytes generation failed");
   }
   lean_object* out = lean_alloc_sarray(1, (size_t)result.out_len, (size_t)result.out_len);

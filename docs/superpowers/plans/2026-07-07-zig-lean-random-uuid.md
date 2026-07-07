@@ -30,6 +30,7 @@
 
 ```zig
 const std = @import("std");
+const builtin = @import("builtin");
 const c = @cImport({
     @cInclude("ziglean_random.h");
 });
@@ -37,6 +38,7 @@ const c = @cImport({
 const STATUS_OK: u32 = 0;
 const STATUS_TOO_LARGE: u32 = 1;
 const STATUS_ALLOC: u32 = 2;
+const STATUS_RANDOM: u32 = 3;
 
 fn setError(out: *c.ZigLeanRandomResult, status: u32) u32 {
     out.* = .{ .status = status, .reserved = 0, .out_len = 0, .out = null };
@@ -48,14 +50,45 @@ fn setSuccess(out: *c.ZigLeanRandomResult, buf: []u8) u32 {
     return STATUS_OK;
 }
 
+pub fn fillRandom(buf: []u8) u32 {
+    if (buf.len == 0) return STATUS_OK;
+    switch (builtin.os.tag) {
+        .linux => {
+            var pos: usize = 0;
+            while (pos < buf.len) {
+                const n = std.c.getrandom(buf.ptr + pos, buf.len - pos, 0);
+                if (n < 0) {
+                    const errno = std.c.getErrno();
+                    if (errno == .INTR) continue;
+                    return STATUS_RANDOM;
+                }
+                if (n == 0) return STATUS_RANDOM;
+                pos += @intCast(n);
+            }
+            return STATUS_OK;
+        },
+        .macos, .ios, .tvos, .watchos, .visionos, .freebsd, .netbsd, .openbsd, .dragonfly => {
+            std.c.arc4random_buf(buf.ptr, buf.len);
+            return STATUS_OK;
+        },
+        else => @compileError("unsupported OS for secure random bytes"),
+    }
+}
+
 export fn ziglean_random_bytes(len: u64, out_result: *c.ZigLeanRandomResult) u32 {
+    if (len > std.math.maxInt(usize)) return setError(out_result, STATUS_TOO_LARGE);
     const size: usize = @intCast(len);
     const out = std.heap.c_allocator.alloc(u8, size) catch return setError(out_result, STATUS_ALLOC);
-    std.crypto.random.bytes(out);
+    const status = fillRandom(out);
+    if (status != STATUS_OK) {
+        std.heap.c_allocator.free(out);
+        return setError(out_result, status);
+    }
     return setSuccess(out_result, out);
 }
 
 export fn ziglean_random_free(ptr: ?[*]u8, len: u64) void {
+    if (len > std.math.maxInt(usize)) return;
     if (ptr) |p| {
         std.heap.c_allocator.free(p[0..@intCast(len)]);
     }
@@ -133,7 +166,7 @@ lean_obj_res lean_ziglean_random_bytes(uint64_t len, lean_obj_arg world) {
   ZigLeanRandomResult result = {0, 0, 0, 0};
   uint32_t status = ziglean_random_bytes(len, &result);
   if (status != 0) {
-    ziglean_random_free(result.out, result.out_len);
+    // Zig guarantees result.out is null on error; nothing to free.
     return mk_random_error("random bytes generation failed");
   }
   lean_object* out = lean_alloc_sarray(1, (size_t)result.out_len, (size_t)result.out_len);
@@ -209,12 +242,14 @@ git commit -m "feat(random): add Lean Random API"
 
 ```zig
 const std = @import("std");
+const random = @import("random.zig");
 const c = @cImport({
     @cInclude("ziglean_uuid.h");
 });
 
 const STATUS_OK: u32 = 0;
 const STATUS_ALLOC: u32 = 1;
+const STATUS_RANDOM: u32 = 2;
 
 const UUID_LEN: usize = 36;
 
@@ -234,54 +269,30 @@ fn hexChar(nibble: u4) u8 {
 
 export fn ziglean_uuid_v4(out_result: *c.ZigLeanUuidResult) u32 {
     var bytes: [16]u8 = undefined;
-    std.crypto.random.bytes(&bytes);
+    const status = random.fillRandom(&bytes);
+    if (status != STATUS_OK) return setError(out_result, status);
 
     bytes[6] = (bytes[6] & 0x0F) | 0x40;
     bytes[8] = (bytes[8] & 0x3F) | 0x80;
 
     const out = std.heap.c_allocator.alloc(u8, UUID_LEN) catch return setError(out_result, STATUS_ALLOC);
 
-    const positions = [_]struct { idx: usize, sep: bool }{
-        .{ .idx = 0, .sep = false },
-        .{ .idx = 2, .sep = false },
-        .{ .idx = 4, .sep = false },
-        .{ .idx = 6, .sep = false },
-        .{ .idx = 8, .sep = true },
-        .{ .idx = 9, .sep = false },
-        .{ .idx = 11, .sep = false },
-        .{ .idx = 13, .sep = true },
-        .{ .idx = 14, .sep = false },
-        .{ .idx = 16, .sep = false },
-        .{ .idx = 18, .sep = true },
-        .{ .idx = 19, .sep = false },
-        .{ .idx = 21, .sep = false },
-        .{ .idx = 23, .sep = false },
-        .{ .idx = 25, .sep = true },
-        .{ .idx = 26, .sep = false },
-        .{ .idx = 28, .sep = false },
-        .{ .idx = 30, .sep = false },
-        .{ .idx = 32, .sep = false },
-        .{ .idx = 34, .sep = false },
-    };
-
     var out_idx: usize = 0;
-    var byte_idx: usize = 0;
-    for (positions) |pos| {
-        if (pos.sep) {
+    for (bytes, 0..) |b, i| {
+        if (i == 4 or i == 6 or i == 8 or i == 10) {
             out[out_idx] = '-';
             out_idx += 1;
         }
-        const b = bytes[byte_idx];
         out[out_idx] = hexChar(@truncate(b >> 4));
         out[out_idx + 1] = hexChar(@truncate(b & 0x0F));
         out_idx += 2;
-        byte_idx += 1;
     }
 
     return setSuccess(out_result, out);
 }
 
 export fn ziglean_uuid_free(ptr: ?[*]u8, len: u64) void {
+    if (len > std.math.maxInt(usize)) return;
     if (ptr) |p| {
         std.heap.c_allocator.free(p[0..@intCast(len)]);
     }
@@ -359,7 +370,7 @@ lean_obj_res lean_ziglean_uuid_v4(lean_obj_arg world) {
   ZigLeanUuidResult result = {0, 0, 0, 0};
   uint32_t status = ziglean_uuid_v4(&result);
   if (status != 0) {
-    ziglean_uuid_free(result.out, result.out_len);
+    // Zig guarantees result.out is null on error; nothing to free.
     return mk_uuid_error("uuid v4 generation failed");
   }
   lean_object* out = lean_mk_string_from_bytes((const char*)result.out, (size_t)result.out_len);
@@ -714,7 +725,7 @@ git commit -am "test: verify random and uuid modules pass lake test"
 **Spec coverage:**
 - `randomBytes` one-shot API → Task 1-3
 - `uuid4` one-shot API → Task 4-6
-- Zig `std.crypto.random` backing → Task 1, 4
+- OS-backed secure random via `fillRandom` (`std.c.getrandom` / `std.c.arc4random_buf`) → Task 1, 4
 - RFC 4122 version/variant bits → Task 4
 - Build integration → Task 7-9
 - Tests → Task 10-12
